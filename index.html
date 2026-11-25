@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>전자석 연구소</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--bg:#FFF8EC;--grid:rgba(27,35,64,.05);--ink:#1B2340;--ink2:#5A6280;--line:#E3D9C4;--yel:#FFC83D;--yel2:#FFF0C2;--blue:#2F6BFF;--blue2:#E2EAFF;--red:#F0533D;--red2:#FFE3DD;--grn:#1FA86B;--grn2:#D9F5E8;--pur:#7B5CFF;--pur2:#ECE6FF}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Pretendard,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;color:var(--ink);background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;min-height:100vh;-webkit-tap-highlight-color:transparent;word-break:keep-all}
+button{font:inherit;color:inherit}
+#hud{position:sticky;top:0;z-index:20;display:flex;gap:8px;align-items:center;padding:10px 14px;background:var(--ink);color:#fff;flex-wrap:wrap}
+#hud[hidden]{display:none}
+.hbtn{background:rgba(255,255,255,.12);border:0;border-radius:10px;padding:8px 12px;color:#fff;font-weight:700;cursor:pointer;font-size:15px}
+.hbtn:active{transform:scale(.96)}
+.hname{font-size:16px}
+.rank{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:8px;background:var(--pur);font-size:13px;font-weight:700}
+.hsp{flex:1}
+.coins{background:var(--yel);color:var(--ink);border-radius:10px;padding:7px 12px;font-weight:800;font-size:15px}
+.coins.bump{animation:bump .5s}
+@keyframes bump{40%{transform:scale(1.25)}}
+main{max-width:1000px;margin:0 auto;padding:18px 16px 70px}
+h1{font-size:26px;margin:6px 0 4px;line-height:1.3}
+h2{font-size:20px;margin:0 0 10px}
+.mtag{display:inline-block;background:var(--ink);color:var(--yel);font-weight:800;font-size:13px;padding:4px 10px;border-radius:8px}
+.mhead{margin-bottom:8px}
+.btn{font-weight:800;font-size:16px;padding:12px 18px;border:2.5px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);box-shadow:0 4px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s;touch-action:manipulation}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.y{background:var(--yel)}.btn.b{background:var(--blue);color:#fff}.btn.g{background:var(--grn);color:#fff}.btn.r{background:var(--red);color:#fff}.btn.p{background:var(--pur);color:#fff}
+.btn.sm{font-size:14px;padding:8px 12px;box-shadow:0 3px 0 var(--ink)}
+.switch{width:100%;font-size:21px;padding:16px;margin-top:12px}
+.switch.on{background:var(--ink);color:var(--yel)}
+.card{background:#fff;border:2.5px solid var(--ink);border-radius:18px;padding:14px 16px;box-shadow:0 5px 0 var(--ink);margin-bottom:14px}
+.mt{margin-top:16px}
+.lbl{font-weight:800;font-size:15px;margin-bottom:8px}
+.hint{color:var(--ink2);font-size:14px;line-height:1.5}
+.q{font-weight:700;margin:2px 0 10px;line-height:1.5}
+.say{display:flex;gap:10px;align-items:flex-end;margin:8px 0 14px}
+.say .chuli{flex-shrink:0}
+.bubble{position:relative;background:#fff;border:2.5px solid var(--ink);border-radius:18px 18px 18px 4px;padding:12px 15px;font-size:17px;line-height:1.55;font-weight:600;animation:pop .3s}
+@keyframes pop{0%{transform:scale(.92);opacity:.3}100%{transform:none;opacity:1}}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:2px solid var(--ink);background:#fff;border-radius:12px;padding:9px 13px;font-weight:700;cursor:pointer;font-size:15px;touch-action:manipulation}
+.chip.sel{background:var(--blue);color:#fff}
+.chip.ok{background:var(--grn);color:#fff}
+.chip.no{background:var(--red);color:#fff}
+.grid2{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px}
+@media (max-width:780px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.stage{background:#fff;border:2.5px solid var(--ink);border-radius:18px;overflow:hidden;position:relative;box-shadow:0 5px 0 var(--ink)}
+.stage svg{display:block;width:100%;height:auto}
+.stage svg.chuli{display:inline-block;width:auto}
+.err{color:var(--red);font-weight:800;font-size:15px;min-height:22px;margin-top:8px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1.5px dashed var(--line)}
+.row:last-child{border-bottom:0}
+.row.lock{opacity:.45}
+.row>span:first-child{font-weight:700}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper b{min-width:42px;text-align:center;font-size:18px}
+.sbtn{border:2px solid var(--ink);background:var(--yel2);border-radius:10px;min-width:40px;height:38px;font-weight:800;font-size:17px;cursor:pointer;padding:0 10px;touch-action:manipulation}
+.sbtn.on{background:var(--ink);color:var(--yel)}
+.seg{display:flex;gap:4px}
+.lk{font-size:14px}
+table.note{width:100%;border-collapse:collapse;font-size:14px}
+table.note th{text-align:left;color:var(--ink2);font-weight:700;padding:6px 4px;border-bottom:2px solid var(--ink)}
+table.note td{padding:7px 4px;border-bottom:1.5px dashed var(--line);vertical-align:top}
+.tag{display:inline-block;padding:2px 8px;border-radius:8px;font-weight:800;font-size:13px}
+.tag.hit{background:var(--grn2);color:#0E6B42}.tag.twist{background:var(--pur2);color:#4A32B5}.tag.base{background:var(--yel2);color:#7A5200}
+.check{list-style:none;margin:0;padding:0}
+.check li{padding:6px 0;font-weight:700;display:flex;gap:8px;align-items:flex-start;line-height:1.4}
+.check li .bx{width:22px;height:22px;flex-shrink:0;border:2px solid var(--ink);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+.check li.done .bx{background:var(--grn);color:#fff}
+.check li.done{color:#0E6B42}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.mcard{position:relative;text-align:left;background:#fff;border:2.5px solid var(--ink);border-radius:18px;padding:14px;box-shadow:0 5px 0 var(--ink);cursor:pointer;min-height:130px;transition:transform .08s}
+.mcard:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
+.mcard .mi{font-size:34px}
+.mcard .mn{font-size:13px;font-weight:800;color:var(--ink2);margin-top:4px}
+.mcard .mt2{font-size:18px;font-weight:800;margin-top:2px}
+.mcard .ms{font-size:14px;color:var(--ink2);margin-top:2px}
+.mcard.locked{background:#EFEAE0;cursor:not-allowed}
+.mcard.locked .mi{filter:grayscale(1);opacity:.5}
+.mcard.done{background:var(--grn2)}
+.mcard.next{background:var(--yel2);animation:glowc 1.6s infinite}
+@keyframes glowc{50%{box-shadow:0 5px 0 var(--ink),0 0 0 6px rgba(255,200,61,.5)}}
+.mcard .st{position:absolute;top:10px;right:12px;font-size:20px}
+.prog{height:16px;border:2.5px solid var(--ink);border-radius:10px;background:#fff;overflow:hidden;margin:6px 0 16px}
+.prog i{display:block;height:100%;background:var(--yel)}
+textarea,input[type=text]{width:100%;font:inherit;font-size:17px;border:2.5px solid var(--ink);border-radius:14px;padding:12px;background:#fff;color:var(--ink);resize:vertical}
+textarea:focus,input:focus{outline:3px solid var(--blue);outline-offset:2px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btnrow .switch{flex:1;margin-top:12px}
+.btnrow .btn:not(.switch){margin-top:12px}
+#toasts{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:92vw}
+.toast{background:var(--ink);color:#fff;padding:10px 16px;border-radius:14px;font-weight:700;font-size:16px;animation:tin .35s;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.toast.coin{background:var(--yel);color:var(--ink);border:2.5px solid var(--ink)}
+.toast.badge{background:var(--pur);border:2.5px solid var(--ink)}
+.toast.out{opacity:0;transform:translateY(-10px);transition:.4s}
+@keyframes tin{0%{transform:translateY(-16px) scale(.9);opacity:0}}
+.confetti{position:fixed;left:50%;top:40%;pointer-events:none;z-index:55}
+.confetti i{position:absolute;width:10px;height:14px;border-radius:2px;animation:conf 1.3s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes conf{40%{transform:translate(calc(var(--dx)*.6),var(--dy)) rotate(calc(var(--r)*.5))}100%{transform:translate(var(--dx),calc(var(--dy) + 380px)) rotate(var(--r));opacity:0}}
+.modalbg{position:fixed;inset:0;background:rgba(27,35,64,.55);z-index:40;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:var(--bg);border:3px solid var(--ink);border-radius:22px;max-width:640px;width:100%;max-height:86vh;overflow:auto;padding:18px;box-shadow:0 6px 0 var(--ink)}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.bdg{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:10px;text-align:center}
+.bdg .e{font-size:34px}.bdg b{display:block;margin-top:4px}.bdg small{color:var(--ink2);font-size:12px;line-height:1.4;display:block;margin-top:2px}
+.bdg.no{background:#EFEAE0}.bdg.no .e{filter:grayscale(1);opacity:.35}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.clipg{transition:transform .55s cubic-bezier(.3,1.5,.5,1)}
+.clipg.fall{transition:transform .38s cubic-bezier(.55,0,1,.6)}
+.needle{transition:transform .8s cubic-bezier(.3,1.9,.5,1)}
+.flow.go{animation:flow .55s linear infinite}
+.flow.rev{animation-direction:reverse}
+@keyframes flow{to{stroke-dashoffset:-18}}
+.fpulse{animation:fp 1.4s ease-in-out infinite}
+@keyframes fp{50%{stroke-dashoffset:7}}
+.puff{animation:puff 1.2s ease-out infinite}
+@keyframes puff{0%{transform:translateY(0);opacity:.8}100%{transform:translateY(-28px);opacity:0}}
+.fxup{animation:fxup .9s ease-out forwards}
+@keyframes fxup{to{transform:translateY(-36px);opacity:0}}
+.cr-mag{animation:crmag 6s ease-in-out infinite}
+.cr-car{animation:crcar 6s ease-in-out infinite}
+.cr-glow{animation:crglow 6s linear infinite}
+.cr-on{animation:cron 6s steps(1) infinite}.cr-off{animation:croff 6s steps(1) infinite}
+@keyframes crmag{0%,15%{transform:translate(0,0)}30%{transform:translate(0,-70px)}55%,75%{transform:translate(290px,-70px)}90%{transform:translate(0,-70px)}100%{transform:translate(0,0)}}
+@keyframes crcar{0%,15%{transform:translate(0,0);opacity:1}30%{transform:translate(0,-70px)}55%,60%{transform:translate(290px,-70px)}68%,88%{transform:translate(290px,30px);opacity:1}92%{transform:translate(290px,30px);opacity:0}93%{transform:translate(0,0);opacity:0}100%{transform:translate(0,0);opacity:1}}
+@keyframes crglow{0%,9%{opacity:0}10%,59%{opacity:.85}60%,100%{opacity:0}}
+@keyframes cron{0%{opacity:0}10%{opacity:1}60%{opacity:0}}
+@keyframes croff{0%{opacity:1}10%{opacity:0}60%{opacity:1}}
+.sortwrap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:700px){.sortwrap{grid-template-columns:minmax(0,1fr)}}
+.bin{border:2.5px dashed var(--ink);border-radius:16px;padding:10px;min-height:150px;background:#fff;cursor:pointer}
+.bin h3{margin:0 0 8px;font-size:16px}
+.bin.s{background:var(--yel2)}.bin.p{background:var(--red2)}.bin.e{background:var(--blue2)}
+.scard{display:block;width:100%;text-align:left;border:2px solid var(--ink);border-radius:12px;background:#fff;padding:10px;margin-bottom:8px;font-weight:700;font-size:15px;line-height:1.4;cursor:pointer;touch-action:manipulation}
+.scard.sel{background:var(--blue);color:#fff;transform:translateY(-2px)}
+.scard.wrong{background:var(--red);color:#fff}
+.pool{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin-bottom:12px}
+.pool .scard{margin:0}
+.steps{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
+.steps span{padding:5px 11px;border-radius:10px;border:2px solid var(--ink);font-weight:700;font-size:13px;background:#fff}
+.steps span.on{background:var(--ink);color:var(--yel)}
+.steps span.ok{background:var(--grn2)}
+.cmp{display:grid;grid-template-columns:minmax(0,1.2fr) auto;gap:8px 12px;align-items:center}
+.cmp .ft{font-weight:700;padding:8px 10px;border-radius:10px}
+.cmp .ft.bad{background:var(--red2)}
+.sci{background:var(--blue2);border-color:var(--blue)}
+.mine{background:var(--yel2)}
+.overlay{position:absolute;inset:0;overflow:auto;background:rgba(255,248,236,.94);display:flex;align-items:center;justify-content:center;padding:18px;text-align:center}
+.overlay[hidden]{display:none}
+.overlay .in{max-width:460px}
+.gamebar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-weight:800;margin-bottom:10px;font-size:16px}
+.ebar{flex:1;min-width:120px;height:18px;border:2.5px solid var(--ink);border-radius:10px;background:#fff;overflow:hidden}
+.ebar i{display:block;height:100%;background:var(--grn);transition:width .1s}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--ink2);margin-top:10px;font-weight:600}
+.stars{font-size:28px;letter-spacing:2px}
+.hypo{display:block;width:100%;text-align:left;border:2px solid var(--ink);border-radius:12px;background:#fff;padding:11px 12px;margin-bottom:8px;font-weight:700;font-size:15px;cursor:pointer;line-height:1.4}
+.hypo.sel{background:var(--grn2)}
+.hypo.sel::before{content:"✔ ";color:var(--grn)}
+.quote{background:var(--yel2);border-left:6px solid var(--yel);padding:10px 14px;border-radius:0;font-weight:600;line-height:1.5;margin:6px 0 12px}
+.hero{text-align:center;padding:30px 10px}
+.hero h1{font-size:42px;margin:10px 0 6px}
+.hero p{font-size:18px;color:var(--ink2);line-height:1.6}
+.hero .card{max-width:440px;margin:20px auto 0;text-align:left}
+.foot{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;color:var(--ink2);font-size:13px}
+.linkbtn{background:none;border:0;color:var(--ink2);text-decoration:underline;cursor:pointer;font-size:13px;padding:4px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header id="hud" hidden></header>
+<main id="app"></main>
+<div id="toasts" aria-live="polite"></div>
+<script>
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const NS='http://www.w3.org/2000/svg';
+const app=$('#app');
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const TEACHER=new URLSearchParams(location.search).has('teacher');
+
+/* ---------- 저장 ---------- */
+const KEY='emlab-v1';
+const fresh=()=>({name:'',coins:0,badges:[],done:{},stars:{},notes:{},bestSort:0,betRuns:0,mute:false});
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));return s?Object.assign(fresh(),s):fresh();}catch(e){return fresh();}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=load();
+
+/* ---------- 소리 ---------- */
+let AC=null;
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){AC=null;}}if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,d,type,vol,delay,f2){if(S.mute)return;const a=ac();if(!a)return;const t=a.currentTime+(delay||0);const o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(vol||.12,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05);}
+function noise(d,vol){if(S.mute)return;const a=ac();if(!a)return;const len=Math.floor(a.sampleRate*d),b=a.createBuffer(1,len,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*(1-i/len);const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type='highpass';f.frequency.value=1800;const g=a.createGain();g.gain.value=vol||.2;s.connect(f);f.connect(g);g.connect(a.destination);s.start();}
+const sfx={
+ click:()=>tone(660,.05,'square',.05),
+ on:()=>{tone(160,.3,'sawtooth',.07,0,440);},
+ off:()=>tone(420,.22,'sawtooth',.06,0,110),
+ snap:()=>{noise(.09,.28);tone(1600,.06,'triangle',.08);},
+ coin:()=>{tone(988,.08,'square',.07);tone(1319,.28,'square',.07,.08);},
+ twist:()=>{tone(300,.16,'triangle',.12,0,760);tone(760,.3,'triangle',.12,.16,1200);},
+ badge:()=>{[523,659,784,1047].forEach((f,i)=>tone(f,.2,'triangle',.11,i*.1));},
+ fail:()=>tone(220,.3,'sawtooth',.07,0,110),
+ drop:()=>tone(320,.16,'sine',.12,0,90)
+};
+
+/* ---------- 공통 UI ---------- */
+const BADGES={
+ first:{icon:'⚡',name:'첫 전류',desc:'전선 옆 나침반의 비밀을 발견했어요'},
+ twist:{icon:'🔄',name:'반전 발견자',desc:'예상과 다른 결과에서 새로운 걸 배웠어요'},
+ fair:{icon:'⚖️',name:'공정한 실험가',desc:'한 가지 조건만 바꾸는 실험을 5번 했어요'},
+ hot:{icon:'🔥',name:'과열 주의보',desc:'전선이 뜨거워지는 걸 경험했어요'},
+ rule:{icon:'📐',name:'규칙 발견자',desc:'전자석의 규칙을 내 말로 정리했어요'},
+ detective:{icon:'🕵️',name:'명탐정',desc:'미스터리 상자를 모두 풀었어요'},
+ pole:{icon:'🧲',name:'극 마스터',desc:'전지 방향으로 극을 조종했어요'},
+ sorter:{icon:'♻️',name:'선별왕',desc:'재활용 선별장에서 철을 6개 이상 골라냈어요'},
+ star3:{icon:'🌟',name:'별 세 개',desc:'설계 챌린지에서 별 3개를 받았어요'},
+ max:{icon:'💪',name:'최강 전자석',desc:'클립 9개를 들어 올렸어요'},
+ hyp:{icon:'🃏',name:'가설 연구원',desc:'실제 실험에서 확인할 가설 카드를 만들었어요'}
+};
+function rank(){const c=S.coins;return c>=450?'수석 연구원':c>=280?'선임 연구원':c>=120?'연구원':'견습 연구원';}
+function chuli(mood,size){size=size||64;mood=mood||'happy';
+ const eyes=mood==='wow'?'<circle cx="24" cy="31" r="5" fill="#1B2340"/><circle cx="40" cy="31" r="5" fill="#1B2340"/><circle cx="26" cy="29" r="1.6" fill="#fff"/><circle cx="42" cy="29" r="1.6" fill="#fff"/>':mood==='worry'?'<path d="M19 28 L29 31 M45 28 L35 31" stroke="#1B2340" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="3" fill="#1B2340"/><circle cx="40" cy="34" r="3" fill="#1B2340"/>':'<rect x="19" y="28" width="10" height="7" rx="3.5" fill="#1B2340"/><rect x="35" y="28" width="10" height="7" rx="3.5" fill="#1B2340"/>';
+ const mouth=mood==='wow'?'<ellipse cx="32" cy="45" rx="5" ry="5.5" fill="#1B2340"/>':mood==='worry'?'<path d="M24 47 Q32 41 40 47" stroke="#1B2340" stroke-width="3" fill="none" stroke-linecap="round"/>':'<path d="M23 42 Q32 50 41 42" stroke="#1B2340" stroke-width="3" fill="none" stroke-linecap="round"/>';
+ return `<svg class="chuli" width="${size}" height="${size}" viewBox="0 0 64 64" aria-hidden="true"><line x1="32" y1="5" x2="32" y2="15" stroke="#1B2340" stroke-width="3"/><circle cx="32" cy="6" r="4.5" fill="#FFC83D" stroke="#1B2340" stroke-width="2"/><rect x="3" y="25" width="8" height="16" rx="3" fill="#F0533D" stroke="#1B2340" stroke-width="2"/><rect x="53" y="25" width="8" height="16" rx="3" fill="#2F6BFF" stroke="#1B2340" stroke-width="2"/><rect x="10" y="15" width="44" height="42" rx="11" fill="#B8C6E6" stroke="#1B2340" stroke-width="3"/><circle cx="16" cy="21" r="1.8" fill="#1B2340"/><circle cx="48" cy="21" r="1.8" fill="#1B2340"/>${eyes}${mouth}</svg>`;}
+function sayHTML(t,m){return `<div class="say">${chuli(m)}<div class="bubble"><b>철이</b> · ${t}</div></div>`;}
+function say(t,m){const el=$('#say');if(el)el.innerHTML=sayHTML(t,m);}
+function toast(html,kind){const t=document.createElement('div');t.className='toast '+(kind||'');t.innerHTML=html;$('#toasts').appendChild(t);setTimeout(()=>t.classList.add('out'),2300);setTimeout(()=>t.remove(),2800);}
+function addCoins(n,why){S.coins+=n;save();renderHUD();const cb=$('#coinbox');if(cb){cb.classList.remove('bump');void cb.offsetWidth;cb.classList.add('bump');}toast(`🪙 <b>+${n}</b> · ${esc(why)}`,'coin');sfx.coin();}
+function badge(id){if(S.badges.includes(id))return;S.badges.push(id);save();renderHUD();const b=BADGES[id];setTimeout(()=>{toast(`${b.icon} 배지 획득! <b>${b.name}</b>`,'badge');sfx.badge();confetti();},350);}
+function confetti(){const box=document.createElement('div');box.className='confetti';const cols=['#FFC83D','#2F6BFF','#F0533D','#1FA86B','#7B5CFF'];for(let i=0;i<30;i++){const s=document.createElement('i');s.style.background=cols[i%5];s.style.setProperty('--dx',((Math.random()*2-1)*280).toFixed(0)+'px');s.style.setProperty('--dy',(-Math.random()*240-80).toFixed(0)+'px');s.style.setProperty('--r',(Math.random()*720).toFixed(0)+'deg');box.appendChild(s);}document.body.appendChild(box);setTimeout(()=>box.remove(),1500);}
+function shake(el){if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');}
+function setErr(t){const e=$('#err');if(e)e.textContent=t||'';}
+function toggleMute(){S.mute=!S.mute;save();renderHUD();}
+function renderHUD(){const hud=$('#hud');if(!S.name||cur==='start'){hud.hidden=true;return;}hud.hidden=false;
+ hud.innerHTML=`<button class="hbtn" id="hmap">🗺️ 미션 지도</button><div class="hname"><b>${esc(S.name)}</b><span class="rank">${rank()}</span></div><div class="hsp"></div><div class="coins" id="coinbox">🪙 ${S.coins}</div><button class="hbtn" id="hbdg">🏅 ${S.badges.length}/${Object.keys(BADGES).length}</button><button class="hbtn" id="hmute" aria-label="소리 켜고 끄기">${S.mute?'🔇':'🔊'}</button>`;
+ $('#hmap').onclick=()=>{sfx.click();go('map');};$('#hbdg').onclick=showBadges;$('#hmute').onclick=toggleMute;}
+function showBadges(){sfx.click();const bg=document.createElement('div');bg.className='modalbg';bg.innerHTML=`<div class="modal" role="dialog" aria-label="배지 도감"><h2>🏅 배지 도감</h2><div class="bgrid">${Object.entries(BADGES).map(([k,b])=>{const has=S.badges.includes(k);return `<div class="bdg ${has?'':'no'}"><div class="e">${b.icon}</div><b>${has?b.name:'???'}</b><small>${b.desc}</small></div>`;}).join('')}</div><div class="btnrow" style="justify-content:flex-end"><button class="btn y" id="mclose">닫기</button></div></div>`;document.body.appendChild(bg);const close=()=>bg.remove();bg.addEventListener('click',e=>{if(e.target===bg)close();});$('#mclose',bg).onclick=close;}
+
+/* ---------- 미션과 화면 전환 ---------- */
+const MISSIONS=[
+ {id:'m1',icon:'🏗️',title:'크레인의 비밀',sub:'질문 만나기'},
+ {id:'m2',icon:'🧭',title:'춤추는 나침반',sub:'전선과 나침반'},
+ {id:'m3',icon:'🔋',title:'전자석 실험실',sub:'전지 개수와 방향'},
+ {id:'m4',icon:'🌀',title:'도전 실험실',sub:'감은 횟수와 철심'},
+ {id:'m5',icon:'📐',title:'우리가 찾은 규칙',sub:'개념 정리하기'},
+ {id:'m6',icon:'🕵️',title:'미스터리 상자',sub:'추리 퀴즈'},
+ {id:'m7',icon:'🧲',title:'극 바꾸기 퍼즐',sub:'밀고 당기기'},
+ {id:'m8',icon:'♻️',title:'재활용 선별장',sub:'미니게임'},
+ {id:'m9',icon:'⭐',title:'설계 챌린지',sub:'별 3개 도전'},
+ {id:'m10',icon:'🃏',title:'나의 가설 카드',sub:'진짜 실험실로 출발'}
+];
+const unlocked=i=>TEACHER||i===0||!!S.done[MISSIONS[i-1].id];
+function finish(id,coins,msg){const first=!S.done[id];S.done[id]=true;save();if(first)addCoins(coins,'미션 완료');confetti();sfx.badge();toast(msg||'미션 완료! 🎉');setTimeout(()=>go('map'),1300);}
+let cur='start',cleanup=null;
+function go(id){if(cleanup){try{cleanup();}catch(e){}cleanup=null;}cur=id;window.scrollTo(0,0);SCREENS[id]();renderHUD();}
+
+/* ---------- 시작 화면 ---------- */
+function startScreen(){
+ const has=!!S.name;
+ app.innerHTML=`<div class="hero">${chuli('happy',120)}<h1>⚡ 전자석 연구소</h1><p>고장 난 고철 로봇 <b>철이</b>의 팔을 고쳐 줄 신입 연구원을 찾고 있어요.<br>전기로 켜고 끄는 신기한 자석의 비밀을 풀어 볼까요?</p>
+ <div class="card">${has?`<div class="lbl">다시 왔군요, ${esc(S.name)} 연구원!</div><button class="btn y switch" id="cont" style="margin-top:4px">이어서 하기 →</button><div class="hint" style="margin-top:12px">다른 사람이라면 아래에 새 이름을 쓰세요.</div>`:''}
+ <label class="lbl" for="nm" style="display:block;margin-top:${has?12:0}px">연구원 이름</label><input type="text" id="nm" maxlength="12" placeholder="김철수" autocomplete="off"><div class="err" id="err"></div><button class="btn ${has?'':'y'} switch" id="go">${has?'새 연구원으로 시작':'연구소 입장하기'}</button></div>
+ ${TEACHER?'<p class="hint" style="margin-top:14px">교사 미리보기 모드: 모든 미션이 열려 있어요.</p>':''}</div>`;
+ if(has)$('#cont').onclick=()=>{ac();sfx.click();go('map');};
+ $('#nm').addEventListener('input',()=>setErr(''));
+ $('#go').onclick=()=>{const v=$('#nm').value.trim();if(!v){setErr('이름을 먼저 써 주세요');shake($('#nm'));return;}ac();const mute=S.mute;S=fresh();S.mute=mute;S.name=v;save();sfx.badge();go('map');};
+ $('#nm').addEventListener('keydown',e=>{if(e.key==='Enter')$('#go').click();});
+}
+
+/* ---------- 미션 지도 ---------- */
+function mapScreen(){
+ const doneN=MISSIONS.filter(m=>S.done[m.id]).length;
+ const nextI=MISSIONS.findIndex(m=>!S.done[m.id]);
+ const msg=doneN===0?`반가워, ${esc(S.name)} 연구원! 나는 재활용 선별장에서 일하는 로봇 철이야. 내 팔의 자석이 고장 나서 고철을 못 들고 있어. 도와줄래?`:doneN===MISSIONS.length?'모든 미션 완료! 이제 가설 카드를 들고 진짜 실험실로 가자!':`좋아, 벌써 미션 ${doneN}개를 해냈어! 노랗게 빛나는 다음 미션으로 가 보자.`;
+ app.innerHTML=`${sayHTML(msg,doneN===MISSIONS.length?'wow':'happy')}<div class="lbl">연구 진행도 ${doneN} / ${MISSIONS.length}</div><div class="prog"><i style="width:${doneN/MISSIONS.length*100}%"></i></div>
+ <div class="mgrid">${MISSIONS.map((m,i)=>{const un=unlocked(i),dn=!!S.done[m.id];const cls=dn?'done':!un?'locked':i===nextI?'next':'';const st=m.id==='m9'&&S.stars.m9?'★'.repeat(S.stars.m9):dn?'✅':!un?'🔒':'';return `<button class="mcard ${cls}" data-i="${i}"><span class="st">${st}</span><div class="mi">${m.icon}</div><div class="mn">미션 ${i+1}</div><div class="mt2">${m.title}</div><div class="ms">${m.sub}</div></button>`;}).join('')}</div>
+ <div class="foot"><button class="linkbtn" id="reset">처음부터 다시 하기</button>${m8best()}</div>`;
+ $$('.mcard').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(!unlocked(i)){sfx.fail();shake(b);toast('🔒 앞 미션을 먼저 완료해 주세요');return;}sfx.click();go(MISSIONS[i].id);});
+ let armed=false,tm=0;$('#reset').onclick=e=>{if(!armed){armed=true;e.target.textContent='정말 지울까요? 한 번 더 누르면 모든 기록이 지워져요';tm=setTimeout(()=>{armed=false;e.target.textContent='처음부터 다시 하기';},3500);return;}clearTimeout(tm);S=fresh();save();go('start');};
+}
+function m8best(){return S.bestSort?`<span>♻️ 선별장 최고 기록: 철 ${S.bestSort}개</span>`:'';}
+
+/* ---------- 미션 1: 크레인의 비밀 ---------- */
+function m1(){
+ const n=S.notes;
+ app.innerHTML=`<div class="mhead"><span class="mtag">미션 1 · 질문 만나기</span><h1>크레인은 어떻게 고철을 들었다가 툭 내려놓을까?</h1></div><div id="say"></div>
+ <div class="grid2"><div><div class="stage"><svg viewBox="0 0 680 300" role="img" aria-label="고철 처리장 크레인 애니메이션"><defs><clipPath id="below"><rect x="0" y="58" width="680" height="260"/></clipPath></defs>
+ <rect width="680" height="300" fill="#E7F0FF"/><circle cx="600" cy="56" r="26" fill="#FFE08A"/><rect y="250" width="680" height="50" fill="#D9C9A8"/>
+ <path d="M110 250 L130 214 L160 226 L180 200 L215 222 L240 206 L270 250Z" fill="#9AA3B5" stroke="#1B2340" stroke-width="2.5"/><rect x="138" y="228" width="26" height="14" fill="#7D869C" stroke="#1B2340" stroke-width="2"/><rect x="200" y="226" width="30" height="12" fill="#B07A3E" stroke="#1B2340" stroke-width="2"/>
+ <rect x="410" y="198" width="200" height="52" rx="6" fill="#2F6BFF" stroke="#1B2340" stroke-width="3"/><circle cx="450" cy="254" r="12" fill="#1B2340"/><circle cx="570" cy="254" r="12" fill="#1B2340"/><text x="510" y="230" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">운반 트럭</text>
+ <g clip-path="url(#below)"><g class="cr-mag"><line x1="190" y1="-120" x2="190" y2="150" stroke="#1B2340" stroke-width="3"/><ellipse class="cr-glow" cx="190" cy="174" rx="48" ry="14" fill="#FFC83D"/><rect x="158" y="148" width="64" height="24" rx="6" fill="#1B2340"/><rect x="164" y="152" width="52" height="5" rx="2" fill="#5A6280"/></g>
+ <g class="cr-car"><rect x="160" y="172" width="62" height="24" rx="6" fill="#F0533D" stroke="#1B2340" stroke-width="2.5"/><rect x="172" y="160" width="36" height="14" rx="4" fill="#F7A08F" stroke="#1B2340" stroke-width="2"/><circle cx="174" cy="198" r="7" fill="#1B2340"/><circle cx="208" cy="198" r="7" fill="#1B2340"/></g></g>
+ <rect x="34" y="40" width="26" height="212" fill="#FFC83D" stroke="#1B2340" stroke-width="3"/><rect x="34" y="40" width="540" height="20" fill="#FFC83D" stroke="#1B2340" stroke-width="3"/><rect x="18" y="70" width="58" height="46" rx="6" fill="#fff" stroke="#1B2340" stroke-width="3"/>
+ <text class="cr-on" x="47" y="99" text-anchor="middle" font-size="14" font-weight="900" fill="#E09A00">전기 ON</text><text class="cr-off" x="47" y="99" text-anchor="middle" font-size="14" font-weight="900" fill="#8A93A8">전기 OFF</text></svg></div>
+ <p class="hint">크레인 운전석의 표시판과 자석을 잘 보세요. 언제 고철이 붙고, 언제 떨어지나요?</p></div>
+ <div><div class="card"><div class="lbl">1. 크레인 끝의 자석은 어떤 자석일까?</div><div class="chips" id="poll">${['냉장고 자석 같은 보통 자석','전기로 켜고 끄는 자석','자석이 아니라 접착제','잘 모르겠다'].map(t=>`<button class="chip ${n.poll===t?'sel':''}" data-t="${esc(t)}">${t}</button>`).join('')}</div></div>
+ <div class="card"><div class="lbl">2. 내 생각 쓰기</div><div class="hint" style="margin-bottom:8px">크레인이 고철을 들었다가 원하는 곳에 내려놓을 수 있는 까닭은 무엇일까요? 틀려도 괜찮아요. 마지막 미션에서 다시 볼 거예요.</div><textarea id="first" rows="4" placeholder="크레인 자석은 ~해서 ~하는 것 같다">${esc(n.first||'')}</textarea><div class="err" id="err"></div><button class="btn y switch" id="done">연구 시작! →</button></div></div></div>`;
+ say(`이건 우리 선별장의 크레인이야. 무거운 고철을 번쩍 들었다가 트럭 위에서 툭 떨어뜨리지. 보통 자석이라면 붙은 고철이 떨어질까?`,'wow');
+ let poll=n.poll||null;
+ $$('#poll .chip').forEach(c=>c.onclick=()=>{sfx.click();poll=c.dataset.t;$$('#poll .chip').forEach(x=>x.classList.toggle('sel',x===c));setErr('');});
+ $('#first').addEventListener('input',()=>setErr(''));
+ $('#done').onclick=()=>{const t=$('#first').value.trim();if(!poll){setErr('1번에서 하나를 골라 주세요');shake($('#poll'));return;}if(t.length<5){setErr('내 생각을 조금 더 자세히 써 주세요 (5글자 이상)');shake($('#first'));return;}S.notes.poll=poll;S.notes.first=t;save();finish('m1',20,'좋은 질문이야! 실험으로 확인하러 가자');};
+}
+
+/* ---------- 미션 2: 춤추는 나침반 ---------- */
+function m2(){
+ let st=0,on=false,dir=1,bet=null,flipped=false;const found=[];
+ app.innerHTML=`<div class="mhead"><span class="mtag">미션 2 · 전선과 나침반</span><h1>전선에 전기가 흐르면 나침반은 어떻게 될까?</h1></div><div id="say"></div>
+ <div class="grid2"><div><div class="stage" id="st2"></div><div class="btnrow"><button class="btn y switch" id="sw">⚡ 스위치 켜기</button><button class="btn" id="flip">⇄ 전지 뒤집기</button></div><div class="err" id="err"></div></div>
+ <div><div class="card" id="task"></div><div class="card"><div class="lbl">🔍 발견 카드</div><div id="found" class="hint">아직 발견한 것이 없어요.</div></div></div></div>`;
+ $('#st2').innerHTML=`<svg viewBox="0 0 680 340" role="img" aria-label="전선 아래 나침반 실험"><rect width="680" height="340" fill="#F3F7FF"/>
+ <g transform="translate(300 175)"><circle r="96" fill="#fff" stroke="#1B2340" stroke-width="4"/><circle r="84" fill="none" stroke="#E3D9C4" stroke-width="2"/>
+ <text y="-62" text-anchor="middle" font-size="18" font-weight="900" fill="#F0533D">N</text><text y="76" text-anchor="middle" font-size="16" font-weight="800" fill="#5A6280">S</text><text x="-70" y="6" text-anchor="middle" font-size="16" font-weight="800" fill="#5A6280">W</text><text x="70" y="6" text-anchor="middle" font-size="16" font-weight="800" fill="#5A6280">E</text>
+ <g class="needle" id="ndl"><path d="M0 -70 L14 0 L-14 0Z" fill="#F0533D" stroke="#1B2340" stroke-width="2"/><path d="M0 70 L14 0 L-14 0Z" fill="#E8ECF4" stroke="#1B2340" stroke-width="2"/><circle r="7" fill="#1B2340"/></g></g>
+ <path id="w2" d="M300 22 H600 V318 H300 Z" fill="none" stroke="#C9781E" stroke-width="6" stroke-linejoin="round" opacity=".9"/>
+ <path id="f2" class="flow" d="M300 22 H600 V318 H300 Z" fill="none" stroke="#FFC83D" stroke-width="3" stroke-dasharray="3 15" opacity="0"/>
+ <g id="bat2"></g><g id="sw2"></g><text x="300" y="14" text-anchor="middle" font-size="13" font-weight="800" fill="#5A6280">↓ 전선 (나침반 바로 위)</text></svg>`;
+ function draw(){
+  $('#ndl').style.transform=`rotate(${on?(dir>0?65:-65):0}deg)`;
+  const f=$('#f2');f.setAttribute('opacity',on?1:0);f.classList.toggle('go',on);f.classList.toggle('rev',on&&dir<0);
+  const top=dir>0;$('#bat2').innerHTML=`<rect x="584" y="130" width="32" height="86" rx="7" fill="#FFC83D" stroke="#1B2340" stroke-width="3"/><rect x="593" y="${top?124:216}" width="14" height="6" fill="#1B2340"/><text x="600" y="${top?152:206}" text-anchor="middle" font-size="18" font-weight="900" fill="#1B2340">+</text><text x="600" y="${top?206:152}" text-anchor="middle" font-size="18" font-weight="900" fill="#1B2340">−</text><text x="636" y="178" font-size="13" font-weight="800" fill="#5A6280">전지</text>`;
+  $('#sw2').innerHTML=`<circle cx="460" cy="22" r="17" fill="${on?'#1FA86B':'#E1E4EC'}" stroke="#1B2340" stroke-width="3"/><text x="460" y="26" text-anchor="middle" font-size="10" font-weight="900" fill="${on?'#fff':'#1B2340'}">${on?'ON':'OFF'}</text>`;
+  const sw=$('#sw');sw.textContent=on?'⏻ 스위치 끄기':'⚡ 스위치 켜기';sw.classList.toggle('on',on);
+  $('#found').innerHTML=found.length?found.map(t=>`<div class="scard" style="cursor:default">✔ ${t}</div>`).join(''):'아직 발견한 것이 없어요.';
+ }
+ function task(){
+  const el=$('#task');
+  if(st===0)el.innerHTML=`<div class="lbl">예상하고 코인 걸기</div><div class="q">스위치를 켜면 나침반 바늘은…</div><div class="chips">${[['move','움직인다'],['stay','그대로 있다']].map(([k,t])=>`<button class="chip ${bet===k?'sel':''}" data-b="${k}">${t}</button>`).join('')}</div><div class="hint" style="margin-top:8px">고른 다음 스위치를 켜 보세요.</div>`;
+  else if(st===1)el.innerHTML=`<div class="lbl">관찰하기</div><div class="q">이번에는 스위치를 꺼 보세요. 바늘은 어떻게 될까요?</div>`;
+  else if(st===2)el.innerHTML=`<div class="lbl">예상하고 코인 걸기</div><div class="q">${flipped?'전지를 뒤집었어요! 이제 스위치를 켜면 바늘은…':'먼저 <b>전지 뒤집기</b> 버튼을 눌러 보세요.'}</div>${flipped?`<div class="chips">${[['same','아까와 같은 쪽'],['opp','아까와 반대쪽'],['none','안 움직인다']].map(([k,t])=>`<button class="chip ${bet===k?'sel':''}" data-b="${k}">${t}</button>`).join('')}</div>`:''}`;
+  else el.innerHTML=`<div class="lbl">알게 된 것 정리하기</div><div class="hint" style="margin-bottom:8px">전지를 뒤집거나 스위치를 켜고 끄며 더 관찰해도 좋아요.</div><div class="q">전선에 전기가 흐르면 어떤 일이 생기나요? 내 말로 한 문장을 써 보세요.</div><textarea id="m2t" rows="3" placeholder="전선에 전기가 흐르면…">${esc(S.notes.m2||'')}</textarea><button class="btn y switch" id="m2done">미션 완료 →</button>`;
+  $$('#task .chip').forEach(c=>c.onclick=()=>{sfx.click();bet=c.dataset.b;setErr('');task();});
+  const d=$('#m2done');if(d){$('#m2t').addEventListener('input',()=>setErr(''));d.onclick=()=>{const t=$('#m2t').value.trim();if(t.length<8){setErr('한 문장으로 조금 더 자세히 써 주세요 (8글자 이상)');shake($('#m2t'));return;}S.notes.m2=t;save();badge('first');finish('m2',30);};}
+ }
+ $('#sw').onclick=()=>{setErr('');
+  if(!on){
+   if(st===0&&!bet){setErr('먼저 예상을 골라 주세요!');shake($('#task'));sfx.fail();return;}
+   if(st===1){setErr('지금은 스위치를 꺼 볼 차례예요');return;}
+   if(st===2&&!flipped){setErr('먼저 전지를 뒤집어 주세요');shake($('#flip'));return;}
+   if(st===2&&!bet){setErr('먼저 예상을 골라 주세요!');shake($('#task'));sfx.fail();return;}
+   on=true;sfx.on();draw();
+   if(st===0){found.push('스위치를 켜니 나침반 바늘이 움직였다');if(bet==='move'){addCoins(10,'예상 적중');say('바늘이 휙 돌아갔어! 전선에 전기가 흐르니까 나침반이 반응했어. 나침반은 자석에 반응하는데… 그럼 전선이 자석처럼 된 걸까?','wow');}else{addCoins(15,'반전 발견');sfx.twist();badge('twist');say('반전! 바늘이 움직였어. 전선 옆에서 나침반이 왜 움직였을까? 나침반은 원래 무엇에 반응하지?','wow');}st=1;bet=null;}
+   else if(st===2){found.push('전지를 뒤집으니 바늘이 반대쪽으로 움직였다');if(bet==='opp'){addCoins(10,'예상 적중');say('정답! 바늘이 반대쪽으로 돌았어. 전기가 흐르는 방향이 바뀌니까 결과도 바뀌었어!','happy');}else{addCoins(15,'반전 발견');sfx.twist();badge('twist');say('반전! 이번엔 반대쪽으로 돌았어. 전지를 뒤집으면 무엇이 바뀌는 걸까?','wow');}st=3;bet=null;}
+  }else{
+   on=false;sfx.off();draw();
+   if(st===1){found.push('스위치를 끄니 바늘이 원래대로 돌아왔다');say('스위치를 끄니까 다시 북쪽을 가리켰어! 전기가 흐를 때만 무언가가 생기나 봐. 이번엔 전지를 뒤집어 볼까?','happy');st=2;}
+  }
+  draw();task();
+ };
+ $('#flip').onclick=()=>{setErr('');if(st<2){setErr('조금만 기다려! 지금 단계를 먼저 해 보세요');return;}if(on){on=false;sfx.off();}dir=-dir;sfx.click();if(st===2)flipped=true;draw();task();};
+ say(`전선 바로 아래에 나침반을 놓았어. 지금 빨간 바늘은 북쪽을 가리키고 있지. 스위치를 켜면 어떻게 될까? 먼저 코인을 걸어 봐!`);
+ draw();task();
+}
+
+/* ---------- 전자석 실험대 (미션 3, 4, 6, 9 공용) ---------- */
+const rawStr=c=>2*c.n*(c.turns/100)*(c.core?1:0.12);
+const clipsOf=c=>Math.min(9,Math.round(rawStr(c)));
+const sideOf=c=>c.dir>0?'out':'in';
+function makeEM(host){
+ host.innerHTML=`<svg viewBox="0 0 680 340" role="img" aria-label="전자석 실험대"><rect width="680" height="340" fill="#fff"/><g class="field"></g><g class="bolt"></g><g class="coil"></g>
+ <path class="wire" fill="none" stroke-width="5" stroke-linejoin="round" d="M222 120 V56 H458 V120"/><path class="flow" fill="none" stroke="#FFC83D" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 15" d="M222 120 V56 H458 V120" opacity="0"/>
+ <g class="bats"></g><g class="swg"></g>
+ <g transform="translate(600 150)"><circle r="40" fill="#fff" stroke="#1B2340" stroke-width="3"/><text y="-27" text-anchor="middle" font-size="11" font-weight="900" fill="#F0533D">N</text><g class="needle"><path d="M0 -30 L8 0 L-8 0Z" fill="#F0533D" stroke="#1B2340" stroke-width="1.5"/><path d="M0 30 L8 0 L-8 0Z" fill="#E8ECF4" stroke="#1B2340" stroke-width="1.5"/><circle r="4" fill="#1B2340"/></g></g>
+ <text x="600" y="210" text-anchor="middle" font-size="13" font-weight="800" fill="#5A6280">나침반</text>
+ <line x1="16" y1="325" x2="664" y2="325" stroke="#C9BFA8" stroke-width="4" stroke-linecap="round"/><text x="24" y="316" font-size="12" font-weight="700" fill="#A89E86">클립</text>
+ <g class="clips"></g><g class="smoke"></g><text class="heattxt" x="24" y="34" font-size="16" font-weight="900" fill="#F0533D" opacity="0">🔥 전선이 뜨거워요!</text></svg>`;
+ const q=s=>host.querySelector(s);const cg=q('.clips');const clips=[];
+ const floor=i=>[250+i*36,298],att=i=>[452+(i%3)*15,172+Math.floor(i/3)*28];
+ for(let i=0;i<9;i++){const g=document.createElementNS(NS,'g');g.setAttribute('class','clipg fall');g.innerHTML='<rect x="-6" y="0" width="12" height="26" rx="6" fill="none" stroke="#56607A" stroke-width="2.6"/><path d="M-2 6 V20" stroke="#56607A" stroke-width="2.2" stroke-linecap="round"/>';const[fx0,fy0]=floor(i);g.style.transform=`translate(${fx0}px,${fy0}px)`;cg.appendChild(g);clips.push(g);}
+ function update(c,on,heat){
+  q('.bolt').innerHTML=c.core?`<rect x="182" y="114" width="20" height="72" rx="5" fill="#7D869C" stroke="#1B2340" stroke-width="2.5"/><rect x="200" y="130" width="282" height="40" rx="4" fill="#B7BFCF" stroke="#1B2340" stroke-width="2.5"/><text x="320" y="202" text-anchor="middle" font-size="13" font-weight="800" fill="#5A6280">철심 (볼트)</text>`:`<rect x="200" y="134" width="282" height="32" rx="12" fill="#EEF6FF" stroke="#8FB3E6" stroke-width="2.5" stroke-dasharray="7 5"/><text x="320" y="202" text-anchor="middle" font-size="13" font-weight="800" fill="#5A6280">빨대 (철심 없음)</text>`;
+  const k=c.turns/10;let p='';for(let i=0;i<k;i++){const x=222+i*(236/(k-1));p+=`M${x.toFixed(1)} 120 L${(x+7).toFixed(1)} 180 `;}
+  q('.coil').innerHTML=`<path d="${p}" stroke="#C9781E" stroke-width="${k>12?4.5:6}" stroke-linecap="round" fill="none"/><text x="${k>12?120:130}" y="152" text-anchor="middle" font-size="12" font-weight="800" fill="#C9781E">${c.turns}번 감기</text>`;
+  const W=58,G=10,tot=c.n*W+(c.n-1)*G,x0=340-tot/2;let b='';
+  for(let i=0;i<c.n;i++){const x=x0+i*(W+G);b+=`<rect x="${x}" y="42" width="${W}" height="28" rx="6" fill="#FFC83D" stroke="#1B2340" stroke-width="2.5"/><rect x="${c.dir>0?x+W:x-5}" y="50" width="5" height="12" fill="#1B2340"/><text x="${x+(c.dir>0?W-12:12)}" y="62" text-anchor="middle" font-size="16" font-weight="900" fill="#1B2340">+</text><text x="${x+(c.dir>0?12:W-12)}" y="62" text-anchor="middle" font-size="16" font-weight="900" fill="#1B2340">−</text>`;}
+  q('.bats').innerHTML=b;
+  q('.swg').innerHTML=`<circle cx="222" cy="90" r="15" fill="${on?'#1FA86B':'#E1E4EC'}" stroke="#1B2340" stroke-width="2.5"/><text x="222" y="94" text-anchor="middle" font-size="10" font-weight="900" fill="${on?'#fff':'#1B2340'}">${on?'ON':'OFF'}</text>`;
+  q('.wire').setAttribute('stroke',heat?'#F0533D':'#1B2340');
+  const fl=q('.flow');fl.setAttribute('opacity',on?1:0);fl.classList.toggle('go',on);fl.classList.toggle('rev',on&&c.dir<0);
+  const r=rawStr(c),s=on?Math.min(1,r/6):0;
+  q('.field').innerHTML=on?[0,1,2].map(i=>`<ellipse class="fpulse" cx="341" cy="150" rx="${170+i*34}" ry="${42+i*26}" fill="none" stroke="#2F6BFF" stroke-width="${(2.6-i*.6).toFixed(1)}" stroke-dasharray="7 7" opacity="${Math.max(.08,s*(1-i*.25)).toFixed(2)}"/>`).join(''):'';
+  const ang=on&&r>0.05?(c.dir>0?1:-1)*(r>=1?90:r>=0.2?60:25):0;
+  q('.needle').style.transform=`rotate(${ang}deg)`;
+  const n=on?clipsOf(c):0;
+  clips.forEach((g,i)=>{const at=i<n;const[x,y]=at?att(i):floor(i);g.classList.toggle('fall',!at);g.style.transitionDelay=at?(i*45)+'ms':(i*15)+'ms';g.style.transform=`translate(${x}px,${y}px)`;});
+  q('.smoke').innerHTML=heat?[0,1,2].map(i=>`<circle class="puff" cx="${300+i*40}" cy="34" r="${8+i*2}" fill="#9AA3B5" style="animation-delay:${i*.3}s"/>`).join(''):'';
+  q('.heattxt').setAttribute('opacity',heat?1:0);
+ }
+ return {update};
+}
+
+const VARS={n:'전지 개수',dir:'전지 방향',turns:'감은 횟수',core:'철심'};
+const VARO={n:'전지 개수를',dir:'전지 방향을',turns:'감은 횟수를',core:'철심을'};
+const BET_CLIP=[['more','더 많이 붙는다'],['same','똑같이 붙는다'],['less','더 적게 붙는다']];
+const BET_DIR=[['same','아까와 같은 쪽'],['opp','아까와 반대쪽'],['none','안 움직인다']];
+const diffKeys=(a,b)=>Object.keys(VARS).filter(k=>a[k]!==b[k]);
+const cfgText=c=>`전지 ${c.n}개 · ${c.dir>0?'정방향':'반대 방향'} · ${c.turns}번 · ${c.core?'철심':'빨대'}`;
+
+function labScreen(mode){
+ const vars=mode==='m3'?['n','dir']:['n','dir','turns','core'];
+ const free=mode==='m9';
+ const L={cfg:{n:1,dir:1,turns:100,core:true},on:false,varSel:null,last:null,bet:null,runs:[],betCount:0,offSeen:false,heat:false,heatT:0,success:false,flags:[false,false,false]};
+ const head={m3:['미션 3 · 전자석 실험실','전지를 바꾸면 전자석은 어떻게 달라질까?'],m4:['미션 4 · 도전 실험실','전지를 늘리지 않고도 전자석을 세게 만들 수 있을까?'],m9:['미션 9 · 설계 챌린지','클립 6개를 들어 올리는 전자석을 설계하라!']}[mode];
+ app.innerHTML=`<div class="mhead"><span class="mtag">${head[0]}</span><h1>${head[1]}</h1></div><div id="say"></div>
+ <div class="grid2"><div><div class="stage" id="stage"></div><button class="btn y switch" id="sw">⚡ 스위치 켜기</button><div class="err" id="err"></div></div>
+ <div>${free?'':`<div class="card" id="varcard"><div class="lbl">1. 바꿀 조건 하나 고르기</div><div class="chips" id="varchips">${vars.map(v=>`<button class="chip" data-v="${v}">${VARS[v]}</button>`).join('')}</div><div class="hint" style="margin-top:8px">나머지 조건은 자물쇠로 잠겨요. 한 가지만 바꿔야 무엇 때문에 달라졌는지 알 수 있거든요!</div></div>`}
+ <div class="card" id="ctrls"></div>${free?'<div class="card" id="goal"></div>':'<div class="card" id="betcard"></div>'}<div class="card" id="check"></div></div></div>
+ <div class="card mt"><div class="lbl">📓 실험 노트</div><div id="notes" class="hint">아직 실험 기록이 없어요.</div></div>`;
+ const em=makeEM($('#stage'));
+ const can=v=>free||L.varSel===v;
+ const dirty=()=>!!L.last&&diffKeys(L.cfg,L.last.cfg).length>0;
+ function rc(){const c=L.cfg;const row=(v,inner)=>{const lockedM3=mode==='m3'&&(v==='turns'||v==='core');return `<div class="row ${can(v)?'':'lock'}"><span>${VARS[v]}</span>${lockedM3?'<span class="lk">🔒 미션 4에서 열려요</span>':inner+(can(v)?'':'<span class="lk">🔒</span>')}</div>`;};
+  $('#ctrls').innerHTML=`<div class="lbl">${free?'1':'2'}. 조건 정하기</div>`+
+  row('n',`<div class="stepper"><button class="sbtn" data-a="n-" aria-label="전지 빼기">−</button><b>${c.n}개</b><button class="sbtn" data-a="n+" aria-label="전지 넣기">+</button></div>`)+
+  row('dir',`<button class="sbtn" data-a="dir">⇄ ${c.dir>0?'정방향':'반대 방향'}</button>`)+
+  row('turns',`<div class="seg">${[50,100,150].map(t=>`<button class="sbtn ${c.turns===t?'on':''}" data-a="t${t}">${t}번</button>`).join('')}</div>`)+
+  row('core',`<div class="seg"><button class="sbtn ${c.core?'on':''}" data-a="c1">볼트</button><button class="sbtn ${!c.core?'on':''}" data-a="c0">빨대</button></div>`);}
+ function rv(){if(free)return;$$('#varchips .chip').forEach(ch=>ch.classList.toggle('sel',ch.dataset.v===L.varSel));}
+ function rb(){if(free)return;const el=$('#betcard');let body;
+  if(!L.last)body='<div class="hint">먼저 지금 상태 그대로 스위치를 켜서 <b>기준 실험</b>을 해 보세요. 이 결과와 비교할 거예요.</div>';
+  else if(!dirty())body=`<div class="hint">${L.varSel?`<b>${VARS[L.varSel]}</b> 조건을 바꾸면 예상 문제가 나타나요.`:'위에서 바꿀 조건을 먼저 골라 주세요.'}</div>`;
+  else{const v=diffKeys(L.cfg,L.last.cfg)[0];const opts=v==='dir'?BET_DIR:BET_CLIP;const qq=v==='dir'?'전지 방향을 바꿨어요. 스위치를 켜면 나침반 빨간 바늘은…':`${VARO[v]} 바꿨어요. 지난번(클립 ${L.last.clips}개)과 비교하면 클립이…`;
+   body=`<div class="q">${qq}</div><div class="chips">${opts.map(([k,t])=>`<button class="chip ${L.bet===k?'sel':''}" data-b="${k}">${t}</button>`).join('')}</div><div class="hint" style="margin-top:8px">맞히면 10코인, 틀리면 반전 보너스 15코인!</div>`;}
+  el.innerHTML='<div class="lbl">3. 예상하고 코인 걸기</div>'+body;
+  $$('#betcard .chip').forEach(ch=>ch.onclick=()=>{sfx.click();L.bet=ch.dataset.b;setErr('');rb();});}
+ function checks(){const r=L.runs;if(mode==='m3')return[['전지 1개, 2개, 3개로 모두 실험하기',[1,2,3].every(k=>r.some(x=>x.cfg.n===k))],['전지 방향을 바꿔서 실험하기',r.some(x=>x.cfg.dir<0)],['스위치를 끄고 클립 관찰하기',L.offSeen]];
+  return[['감은 횟수를 바꿔서 실험하기',new Set(r.map(x=>x.cfg.turns)).size>=2],['철심을 빼고 빨대로 실험하기',r.some(x=>!x.cfg.core)],[`예상하고 실험하기 3번 (${Math.min(3,L.betCount)}/3)`,L.betCount>=3]];}
+ function rch(){const el=$('#check');
+  if(free){const fl=L.flags;el.innerHTML=`<div class="lbl">별 받는 조건</div><ul class="check">${['클립 6개 이상 들어 올리기','전지 2개 이하로 해내기','첫 번째 시도에 성공하기'].map((t,i)=>`<li class="${fl[i]?'done':''}"><span class="bx">${fl[i]?'★':''}</span>${t}</li>`).join('')}</ul>${L.success||S.done.m9?'<button class="btn g switch" id="fin">미션 완료 →</button>':''}`;}
+  else{const cs=checks();const all=cs.every(x=>x[1]);el.innerHTML=`<div class="lbl">미션 체크리스트</div><ul class="check">${cs.map(([t,d])=>`<li class="${d?'done':''}"><span class="bx">${d?'✓':''}</span>${t}</li>`).join('')}</ul>${all||S.done[mode]?'<button class="btn g switch" id="fin">미션 완료 →</button>':''}`;}
+  const f=$('#fin');if(f)f.onclick=()=>{turnOff(true);finish(mode,free?20+10*Math.max(...[S.stars.m9||0]):30);};}
+ function rgoal(){if(!free)return;$('#goal').innerHTML=`<div class="lbl">🎯 목표: 클립 6개 이상!</div><div class="hint">조건을 모두 정한 다음 스위치를 켜세요. 바로 켜 보기 전에 먼저 생각해 보는 게 별 3개의 비결이에요.</div><div class="stars" style="margin-top:6px">${'★'.repeat(S.stars.m9||0)}${'☆'.repeat(3-(S.stars.m9||0))}</div><div class="hint">최고 기록</div><button class="btn sm" id="hintb" style="margin-top:8px">💡 철이의 힌트</button>`;
+  $('#hintb').onclick=()=>{sfx.click();say('전지를 3개 넣으면 쉽게 6개를 들 수 있어. 그런데 전선이 뜨거워지지! 미션 4에서 전지를 늘리지 않고 세게 만드는 방법을 찾았잖아. 그걸 떠올려 봐!','happy');};}
+ function rn(){if(!L.runs.length)return;$('#notes').innerHTML=`<table class="note"><tr><th>번호</th><th>조건</th>${free?'':'<th>내 예상</th>'}<th>결과</th>${free?'':'<th>판정</th>'}</tr>${L.runs.map((x,i)=>`<tr><td>${i+1}</td><td>${cfgText(x.cfg)}</td>${free?'':`<td>${x.bet}</td>`}<td>클립 ${x.clips}개 · 빨간 바늘 ${x.side==='out'?'바깥쪽 →':'← 전자석 쪽'}</td>${free?'':`<td>${x.verdict==='적중'?'<span class="tag hit">적중</span>':x.verdict==='반전'?'<span class="tag twist">반전 발견</span>':'<span class="tag base">기준</span>'}</td>`}</tr>`).join('')}</table>`;}
+ function upd(){em.update(L.cfg,L.on,L.heat);const sw=$('#sw');sw.textContent=L.on?'⏻ 스위치 끄기':'⚡ 스위치 켜기';sw.classList.toggle('on',L.on);rc();rv();rb();rch();rgoal();rn();}
+ function turnOff(quiet){if(!L.on)return;L.on=false;clearTimeout(L.heatT);const was=L.heat;L.heat=false;if(!quiet){sfx.off();setTimeout(sfx.drop,250);}
+  if(L.last&&L.last.clips>0){if(!L.offSeen&&!quiet)say('스위치를 끄니까 클립이 우수수 떨어졌어! 냉장고 자석이었다면 어땠을까?','wow');else if(was&&!quiet)say('휴, 껐다! 실제 실험에서도 전지를 많이 연결했을 때는 스위치를 짧게 켰다 꺼야 해.','happy');if(!quiet)L.offSeen=true;}upd();}
+ function turnOn(){setErr('');
+  if(!free&&dirty()&&!L.bet){setErr('먼저 예상을 골라 코인을 걸어 주세요!');shake($('#betcard'));sfx.fail();return;}
+  L.on=true;sfx.on();const c={...L.cfg},clips=clipsOf(c),side=sideOf(c);let verdict='기준',betTxt='-';
+  if(free){L.runs.push({cfg:c,clips,side,bet:'-',verdict:'-'});
+   if(clips>=6){const fl=[true,c.n<=2,L.runs.length===1];fl.forEach((v,i)=>{if(v)L.flags[i]=true;});const cnt=fl.filter(Boolean).length;L.success=true;const prev=S.stars.m9||0;if(cnt>prev){S.stars.m9=cnt;save();}if(cnt===3)badge('star3');setTimeout(()=>{confetti();sfx.badge();},400);say(`성공! 클립 ${clips}개! 이번 설계는 별 ${cnt}개 ${'★'.repeat(cnt)}${'☆'.repeat(3-cnt)}${cnt<3?(c.n>2?' 전지를 줄여도 될 방법은 없을까?':' 다음엔 한 번에 성공해 보자!'):''}`,'wow');}
+   else say(clips?`클립 ${clips}개. 목표까지 ${6-clips}개 더 필요해! 무엇을 바꾸면 더 세질까?`:'클립이 하나도 안 붙었어… 철심이 있는지 확인해 봐!','worry');
+  }else if(!L.last){say(`기준 실험 완료! 클립 ${clips}개가 붙었고, 나침반 빨간 바늘은 ${side==='out'?'바깥쪽':'전자석 쪽'}을 가리켜. 이제 바꿀 조건을 하나 골라 봐!`,'happy');}
+  else if(dirty()){const v=diffKeys(c,L.last.cfg)[0];const actual=v==='dir'?(side===L.last.side?'same':'opp'):(clips>L.last.clips?'more':clips<L.last.clips?'less':'same');const opts=v==='dir'?BET_DIR:BET_CLIP;betTxt=opts.find(o=>o[0]===L.bet)[1];L.betCount++;S.betRuns=(S.betRuns||0)+1;save();
+   const res=v==='dir'?`빨간 바늘이 ${side==='out'?'바깥쪽':'전자석 쪽'}을 가리켜. 지난번과 ${actual==='opp'?'반대야':'같아'}!`:`클립 ${clips}개! 지난번 ${L.last.clips}개보다 ${actual==='more'?'많아':actual==='less'?'적어':'변화가 없어'}.`;
+   if(actual===L.bet){verdict='적중';setTimeout(()=>addCoins(10,'예상 적중'),450);say('예상 적중! '+res,'happy');}
+   else{verdict='반전';setTimeout(()=>{addCoins(15,'반전 발견');sfx.twist();},450);badge('twist');say('반전 발견! '+res+' 왜 예상과 달랐을까?','wow');}
+   if(S.betRuns>=5)badge('fair');
+  }else say(`같은 조건으로 다시 해 봤어. 결과도 똑같이 클립 ${clips}개야. 조건을 하나 바꿔 볼까?`,'happy');
+  if(!free)L.runs.push({cfg:c,clips,side,bet:betTxt,verdict});
+  L.last={cfg:c,clips,side};L.bet=null;
+  if(clips>=9)badge('max');
+  if(clips>0)setTimeout(sfx.snap,260);
+  clearTimeout(L.heatT);if(c.n===3)L.heatT=setTimeout(()=>{if(L.on){L.heat=true;upd();badge('hot');sfx.fail();say('앗, 전선이 뜨거워지고 있어! 전지 3개로 오래 켜 두면 위험해. 빨리 스위치를 꺼!','worry');}},3000);
+  upd();}
+ $('#sw').onclick=()=>L.on?turnOff():turnOn();
+ if(!free)$('#varchips').addEventListener('click',e=>{const ch=e.target.closest('.chip');if(!ch)return;if(dirty()){setErr('조건을 바꿨으면 먼저 스위치를 켜서 실험해 주세요. 그다음 다른 조건을 고를 수 있어요.');shake($('#varcard'));sfx.fail();return;}if(!L.last){setErr('먼저 기준 실험부터! 지금 상태로 스위치를 켜 보세요.');shake($('#sw'));sfx.fail();return;}sfx.click();L.varSel=ch.dataset.v;setErr('');upd();});
+ $('#ctrls').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;const v=a[0]==='n'?'n':a==='dir'?'dir':a[0]==='t'?'turns':'core';
+  if(!can(v)){if(!L.last)setErr('먼저 기준 실험부터! 지금 상태로 스위치를 켜 보세요.');else setErr(`먼저 위에서 '바꿀 조건'으로 ${VARS[v]}을(를) 골라 주세요.`);shake(free?null:$('#varcard'));sfx.fail();return;}
+  setErr('');const c=L.cfg;const before={...c};
+  if(a==='n+')c.n=Math.min(3,c.n+1);else if(a==='n-')c.n=Math.max(1,c.n-1);else if(a==='dir')c.dir=-c.dir;else if(a[0]==='t')c.turns=+a.slice(1);else c.core=a==='c1';
+  if(diffKeys(before,c).length===0){if(a==='n+'||a==='n-')setErr(a==='n+'?'전지는 3개까지만 연결할 수 있어요':'전지는 1개보다 적게 할 수 없어요');return;}
+  if(L.on)turnOff(true);L.bet=null;sfx.click();upd();});
+ cleanup=()=>clearTimeout(L.heatT);
+ const intro={m3:'여기는 전자석 실험실이야. 볼트에 에나멜선을 감고 전지를 연결했어. 먼저 지금 상태 그대로 스위치를 켜서 클립이 몇 개 붙는지 확인해 봐!',m4:'도전 실험실에 온 걸 환영해! 이번엔 감은 횟수와 철심도 바꿀 수 있어. 전지를 늘리지 않고도 전자석을 세게 만들 수 있을까? 먼저 기준 실험부터!',m9:'드디어 설계 챌린지야! 내 팔을 고치려면 클립 6개를 드는 전자석이 필요해. 지금까지 찾은 규칙을 써서 설계해 줘. 한 번에 성공하면 별이 하나 더!'}[mode];
+ say(intro,'happy');upd();
+}
+
+/* ---------- 미션 5: 우리가 찾은 규칙 ---------- */
+const SORT=[{t:'전지를 2개로 늘리니 클립이 더 많이 붙었다',c:'s'},{t:'코일을 더 많이 감으니 클립이 더 많이 붙었다',c:'s'},{t:'철심을 빼니 클립이 거의 붙지 않았다',c:'s'},{t:'전지 방향을 바꾸니 나침반 바늘이 반대로 돌았다',c:'p'},{t:'스위치를 끄니 붙어 있던 클립이 떨어졌다',c:'e'},{t:'스위치를 켜야 클립이 붙었다',c:'e'}];
+const BINS={s:'💪 전자석의 세기',p:'🧭 전자석의 극',e:'⚡ 전기가 흐를 때만'};
+const CMP=[{t:'철로 된 물체를 끌어당긴다',a:'both'},{t:'N극과 S극이 있다',a:'both'},{t:'언제나 자석의 성질을 띤다',a:'perm'},{t:'전기가 흐를 때만 자석이 된다',a:'em'},{t:'세기를 조절할 수 있다',a:'em'},{t:'극을 바꿀 수 있다',a:'em'}];
+const CMPO=[['perm','영구 자석'],['em','전자석'],['both','둘 다']];
+function m5(){
+ let step=0,sel=null;const place={},wrong=new Set(),ans={},bad=new Set();
+ app.innerHTML=`<div class="mhead"><span class="mtag">미션 5 · 개념 정리하기</span><h1>우리가 찾은 전자석의 규칙</h1></div><div id="say"></div><div class="steps" id="steps"></div><div id="body"></div><div class="err" id="err"></div>`;
+ function steps(){$('#steps').innerHTML=['① 카드 분류','② 규칙 쓰기','③ 영구 자석과 비교','④ 과학자 노트'].map((t,i)=>`<span class="${i===step?'on':i<step?'ok':''}">${t}</span>`).join('');}
+ function render(){steps();setErr('');const b=$('#body');
+  if(step===0){
+   b.innerHTML=`<div class="card"><div class="lbl">실험에서 본 장면 카드를 알맞은 상자에 넣어 보세요</div><div class="hint" style="margin-bottom:10px">카드를 누른 다음 상자를 누르면 들어가요. 상자 속 카드를 누르면 다시 빠져요.</div><div class="pool">${SORT.map((x,i)=>place[i]?'':`<button class="scard ${sel===i?'sel':''} ${wrong.has(i)?'wrong':''}" data-i="${i}">${x.t}</button>`).join('')||'<div class="hint">카드를 모두 넣었어요! 확인 버튼을 눌러 보세요.</div>'}</div>
+   <div class="sortwrap">${Object.entries(BINS).map(([k,t])=>`<div class="bin ${k}" data-bin="${k}"><h3>${t}</h3>${SORT.map((x,i)=>place[i]===k?`<button class="scard" data-back="${i}">${x.t}</button>`:'').join('')}</div>`).join('')}</div><button class="btn y switch" id="chk">확인하기</button></div>`;
+   $$('.pool .scard').forEach(c=>c.onclick=e=>{e.stopPropagation();sfx.click();const i=+c.dataset.i;sel=sel===i?null:i;wrong.delete(i);render();});
+   $$('.bin').forEach(bn=>bn.onclick=e=>{const back=e.target.closest('[data-back]');if(back){delete place[+back.dataset.back];sfx.click();render();return;}if(sel===null){setErr('먼저 위에서 카드를 하나 골라 주세요');return;}place[sel]=bn.dataset.bin;sel=null;sfx.snap();render();});
+   $('#chk').onclick=()=>{if(Object.keys(place).length<SORT.length){setErr('카드 6장을 모두 상자에 넣어 주세요');shake($('#chk'));return;}const w=SORT.map((x,i)=>place[i]!==x.c?i:-1).filter(i=>i>=0);
+    if(w.length){w.forEach(i=>{delete place[i];wrong.add(i);});sfx.fail();say(`${w.length}장이 다른 상자에 들어갔어. 빨간 카드를 다시 생각해 봐. 클립 개수가 달라졌다면 '세기', 바늘 방향이 바뀌었다면 '극'이야!`,'worry');render();}
+    else{addCoins(20,'카드 분류 완료');step=1;say('완벽해! 이제 이 카드들을 보고 규칙을 내 말로 써 볼까? 과학자들도 이렇게 관찰한 것을 모아서 규칙을 만들어.','wow');render();}};
+  }else if(step===1){
+   b.innerHTML=`<div class="card"><div class="lbl">💪 전자석의 세기는 어떻게 하면 커지나요?</div><textarea id="rs" rows="3" placeholder="전자석의 세기는 ~할수록 커진다">${esc(S.notes.ruleS||'')}</textarea></div><div class="card"><div class="lbl">🧭 전자석의 극은 어떻게 하면 바뀌나요?</div><textarea id="rp" rows="3" placeholder="전자석의 극은 ~하면 바뀐다">${esc(S.notes.ruleP||'')}</textarea><button class="btn y switch" id="nx">다음 →</button></div>`;
+   $('#nx').onclick=()=>{const s=$('#rs').value.trim(),p=$('#rp').value.trim();if(s.length<6){setErr('세기 규칙을 조금 더 자세히 써 주세요 (6글자 이상)');shake($('#rs'));return;}if(p.length<6){setErr('극 규칙을 조금 더 자세히 써 주세요 (6글자 이상)');shake($('#rp'));return;}S.notes.ruleS=s;S.notes.ruleP=p;save();addCoins(10,'규칙 쓰기');step=2;say('멋진 규칙이야! 그럼 전자석은 냉장고에 붙이는 영구 자석과 무엇이 같고 무엇이 다를까?','happy');render();};
+  }else if(step===2){
+   b.innerHTML=`<div class="card"><div class="lbl">영구 자석과 전자석, 누구의 특징일까요?</div><div class="cmp">${CMP.map((x,i)=>`<div class="ft ${bad.has(i)?'bad':''}">${x.t}</div><div class="chips">${CMPO.map(([k,t])=>`<button class="chip ${ans[i]===k?'sel':''}" data-i="${i}" data-k="${k}">${t}</button>`).join('')}</div>`).join('')}</div><button class="btn y switch" id="chk2">확인하기</button></div>`;
+   $$('.cmp .chip').forEach(c=>c.onclick=()=>{sfx.click();ans[+c.dataset.i]=c.dataset.k;bad.delete(+c.dataset.i);render();});
+   $('#chk2').onclick=()=>{if(Object.keys(ans).length<CMP.length){setErr('모든 특징에 답을 골라 주세요');shake($('#chk2'));return;}bad.clear();CMP.forEach((x,i)=>{if(ans[i]!==x.a)bad.add(i);});if(bad.size){sfx.fail();say(`분홍색 줄 ${bad.size}개를 다시 생각해 봐. 영구 자석은 전기 없이도 늘 자석이지? 전자석도 극이 있을까? 미션 3의 나침반을 떠올려 봐!`,'worry');render();}else{addCoins(20,'비교 완료');step=3;say('대단해! 이제 과학자들은 어떻게 설명하는지 내 규칙과 비교해 보자.','wow');render();}};
+  }else{
+   b.innerHTML=`<div class="grid2"><div class="card mine"><div class="lbl">✏️ 내가 만든 규칙</div><p><b>세기:</b> ${esc(S.notes.ruleS)}</p><p><b>극:</b> ${esc(S.notes.ruleP)}</p></div><div class="card sci"><div class="lbl">🔬 과학자 노트</div><p>전류가 흐르는 전선 주위에는 자석의 성질이 생겨요. 전선을 코일처럼 감고 그 안에 철심을 넣으면 이 성질이 훨씬 강해지는데, 이것이 <b>전자석</b>이에요.</p><p>전자석은 <b>전류가 흐를 때만</b> 자석이 돼요. 전지를 직렬로 더 연결하거나 코일을 더 많이 감으면 <b>세기가 커지고</b>, 전지의 방향을 바꿔 전류의 방향을 바꾸면 <b>극이 바뀌어요</b>.</p></div></div><div class="card"><div class="q">내 규칙과 과학자 노트를 비교해 보세요. 내 규칙에 더하고 싶은 말이 있나요? 있다면 미션 10의 가설 카드에 써 보세요!</div><button class="btn g switch" id="fin5">미션 완료 →</button></div>`;
+   $('#fin5').onclick=()=>{badge('rule');finish('m5',30);};
+  }}
+ say('실험실에서 본 장면들을 떠올려 봐. 비슷한 것끼리 묶으면 규칙이 보여!','happy');render();
+}
+
+/* ---------- 미션 6: 미스터리 상자 ---------- */
+const MYS=[
+ {q:'상자 속 전자석이 클립 <b>6개</b>를 들었어. 감은 횟수는 100번, 철심도 있어. 전지는 몇 개일까?',draw:{clips:6},opts:['1개','2개','3개'],a:2,why:'전지 1개일 때 클립 2개였지? 전지를 3개 연결하니 세기도 커져서 클립 6개!',cfg:{n:3,dir:1,turns:100,core:true}},
+ {q:'두 상자 모두 전지 2개에 철심이 있어. A 상자는 클립 2개, B 상자는 클립 6개를 들었어. 코일을 더 많이 감은 상자는?',draw:{two:true},opts:['A 상자','B 상자','둘이 같다'],a:1,why:'코일을 많이 감을수록 전자석이 세져. B 상자는 150번, A 상자는 50번 감았어.',cfg:{n:2,dir:1,turns:150,core:true}},
+ {q:'전지 3개에 150번이나 감았는데 클립이 <b>1개</b>밖에 안 붙었어. 상자 속에 무엇이 빠졌을까?',draw:{clips:1},opts:['철심 (볼트)','에나멜선','나침반'],a:0,why:'철심이 없으면 전자석이 아주 약해져. 철심은 전자석을 세게 만드는 핵심 재료야.',cfg:{n:3,dir:1,turns:150,core:false}},
+ {q:'상자 옆 나침반의 빨간 바늘이 <b>상자 쪽</b>을 가리키고 있어. 상자 속 전지를 반대로 끼우면 빨간 바늘은?',draw:{clips:2,compass:true},opts:['그대로 상자 쪽','바깥쪽으로 돈다','빙글빙글 계속 돈다'],a:1,why:'전지 방향을 바꾸면 전류의 방향이 바뀌고, 전자석의 극도 바뀌어. 그래서 바늘도 반대로 돌아!',cfg:{n:1,dir:-1,turns:100,core:true}}
+];
+function boxSVG(d){const clipShape=(x,y)=>`<g transform="translate(${x} ${y})"><rect x="-6" y="0" width="12" height="26" rx="6" fill="none" stroke="#56607A" stroke-width="2.6"/><path d="M-2 6 V20" stroke="#56607A" stroke-width="2.2"/></g>`;
+ const box=(x,w,label)=>`<rect x="${x}" y="30" width="${w}" height="120" rx="16" fill="#7B5CFF" stroke="#1B2340" stroke-width="3"/><path d="M${x+10} 50 Q${x+w/2} 66 ${x+w-10} 50" stroke="#ECE6FF" stroke-width="3" fill="none"/><text x="${x+w/2}" y="${label?118:120}" text-anchor="middle" font-size="${label?44:60}" font-weight="900" fill="#fff">${label||'?'}</text>`;
+ const hang=(cx,n)=>{let s='';for(let i=0;i<n;i++)s+=clipShape(cx-15+(i%3)*15,154+Math.floor(i/3)*28);return s;};
+ if(d.two)return `<svg viewBox="0 0 680 240" role="img" aria-label="미스터리 상자 A와 B">${box(110,180,'A')}${hang(200,2)}${box(390,180,'B')}${hang(480,6)}</svg>`;
+ return `<svg viewBox="0 0 680 240" role="img" aria-label="미스터리 상자">${box(240,200)}${hang(340,d.clips)}${d.compass?`<g transform="translate(540 90)"><circle r="36" fill="#fff" stroke="#1B2340" stroke-width="3"/><g transform="rotate(-90)"><path d="M0 -26 L7 0 L-7 0Z" fill="#F0533D" stroke="#1B2340" stroke-width="1.5"/><path d="M0 26 L7 0 L-7 0Z" fill="#E8ECF4" stroke="#1B2340" stroke-width="1.5"/></g><circle r="4" fill="#1B2340"/></g><text x="540" y="150" text-anchor="middle" font-size="13" font-weight="800" fill="#5A6280">나침반</text>`:''}</svg>`;}
+function m6(){
+ let i=0,tries=0,solved=false;
+ app.innerHTML=`<div class="mhead"><span class="mtag">미션 6 · 추리 퀴즈</span><h1>미스터리 상자 속 전자석을 추리하라!</h1></div><div id="say"></div><div id="body"></div>`;
+ function render(){const p=MYS[i];solved=false;tries=0;
+  $('#body').innerHTML=`<div class="steps">${MYS.map((x,k)=>`<span class="${k===i?'on':k<i?'ok':''}">상자 ${k+1}</span>`).join('')}</div><div class="grid2"><div><div class="stage" id="bx">${boxSVG(p.draw)}</div><div id="reveal" style="margin-top:14px"></div></div><div><div class="card"><div class="q">${p.q}</div><div class="chips" id="op">${p.opts.map((t,k)=>`<button class="chip" data-k="${k}">${t}</button>`).join('')}</div><div class="err" id="err"></div><div id="why"></div></div></div></div>`;
+  $$('#op .chip').forEach(c=>c.onclick=()=>{if(solved)return;const k=+c.dataset.k;if(k===p.a){solved=true;c.classList.add('ok');addCoins(tries===0?15:5,tries===0?'한 번에 추리 성공':'추리 성공');say('정답! 상자를 열어 볼게.','wow');
+    const rv=$('#reveal');rv.innerHTML='<div class="stage" id="rvem"></div>';const em=makeEM($('#rvem'));const cfg=p.cfg;em.update(cfg,false,false);
+    if(i===3){em.update(cfg,true,false);setTimeout(()=>{em.update({...cfg,dir:1},true,false);sfx.snap();},1100);}else setTimeout(()=>{em.update(cfg,true,false);sfx.snap();},400);
+    $('#why').innerHTML=`<div class="quote">${p.why}</div><button class="btn y switch" id="nx">${i<MYS.length-1?'다음 상자 →':'미션 완료 →'}</button>`;
+    $('#nx').onclick=()=>{if(i<MYS.length-1){i++;sfx.click();say('다음 상자야. 이번 것도 풀 수 있겠어?','happy');render();}else{badge('detective');finish('m6',20);}};}
+   else{tries++;c.classList.add('no');sfx.fail();shake(c);setErr('다시 생각해 봐! 실험 노트에서 비슷한 조건을 찾아보자.');}});}
+ say('선별장 창고에서 천으로 덮인 상자를 발견했어! 안에는 전자석이 들어 있대. 클립과 나침반을 단서로 상자 속을 추리해 봐.','wow');render();
+}
+
+/* ---------- 미션 7: 극 바꾸기 퍼즐 ---------- */
+function m7(){
+ const LV=[{face:'N',goal:'push',dir:-1},{face:'S',goal:'push',dir:1},{face:'N',goal:'pull',dir:1}];
+ let lv=0,dir=-1,on=false,tries=0,hint=false,busy=false,done=false,tm=0,cx=400;
+ app.innerHTML=`<div class="mhead"><span class="mtag">미션 7 · 밀고 당기기</span><h1>전자석의 극을 바꿔 수레를 움직여라!</h1></div><div id="say"></div>
+ <div class="grid2"><div><div class="stage" id="ps"></div><div class="btnrow"><button class="btn y switch" id="sw">⚡ 스위치 켜기</button><button class="btn" id="flip">⇄ 전지 뒤집기</button></div><div class="err" id="err"></div></div><div><div class="card" id="goal"></div><div class="card"><div class="lbl">💡 기억나니?</div><div class="hint">같은 극끼리는 서로 밀어내고, 다른 극끼리는 서로 끌어당겨요. 전자석의 오른쪽 끝은 무슨 극일까요?</div><button class="btn sm" id="hb" style="margin-top:10px">🧭 나침반으로 확인하기 (보상 줄어듦)</button></div></div></div>`;
+ function svg(){const L=LV[lv];const other=L.face==='N'?'S':'N';const col=p=>p==='N'?'#F0533D':'#2F6BFF';
+  const W=58,x0=140-(W/2);
+  return `<svg viewBox="0 0 680 300" role="img" aria-label="극 바꾸기 퍼즐"><rect width="680" height="300" fill="#F3F7FF"/>
+  <path d="M70 118 V56 H270 V118" fill="none" stroke="#1B2340" stroke-width="5" stroke-linejoin="round"/><path class="flow ${on?'go':''} ${on&&dir<0?'rev':''}" d="M70 118 V56 H270 V118" fill="none" stroke="#FFC83D" stroke-width="3" stroke-dasharray="3 15" opacity="${on?1:0}"/>
+  <rect x="${x0+30}" y="42" width="${W}" height="28" rx="6" fill="#FFC83D" stroke="#1B2340" stroke-width="2.5"/><rect x="${dir>0?x0+30+W:x0+25}" y="50" width="5" height="12" fill="#1B2340"/><text x="${x0+30+(dir>0?W-12:12)}" y="62" text-anchor="middle" font-size="16" font-weight="900">+</text><text x="${x0+30+(dir>0?12:W-12)}" y="62" text-anchor="middle" font-size="16" font-weight="900">−</text>
+  <circle cx="70" cy="88" r="15" fill="${on?'#1FA86B':'#E1E4EC'}" stroke="#1B2340" stroke-width="2.5"/><text x="70" y="92" text-anchor="middle" font-size="10" font-weight="900" fill="${on?'#fff':'#1B2340'}">${on?'ON':'OFF'}</text>
+  <rect x="34" y="112" width="18" height="64" rx="5" fill="#7D869C" stroke="#1B2340" stroke-width="2.5"/><rect x="50" y="124" width="240" height="40" rx="4" fill="#B7BFCF" stroke="#1B2340" stroke-width="2.5"/>
+  <path d="${Array.from({length:12},(_,i)=>{const x=68+i*18;return `M${x} 118 L${x+7} 170`;}).join(' ')}" stroke="#C9781E" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+  ${on?`<ellipse cx="170" cy="144" rx="150" ry="52" fill="none" stroke="#2F6BFF" stroke-width="2" stroke-dasharray="7 7" class="fpulse" opacity=".6"/>`:''}
+  ${hint?`<g transform="translate(320 70)"><circle r="28" fill="#fff" stroke="#1B2340" stroke-width="3"/><g transform="rotate(${dir>0?90:-90})"><path d="M0 -20 L6 0 L-6 0Z" fill="#F0533D" stroke="#1B2340" stroke-width="1.2"/><path d="M0 20 L6 0 L-6 0Z" fill="#E8ECF4" stroke="#1B2340" stroke-width="1.2"/></g><circle r="3.5" fill="#1B2340"/></g>`:''}
+  <rect x="280" y="236" width="390" height="8" rx="4" fill="#C9BFA8"/><line x1="636" y1="140" x2="636" y2="236" stroke="#1B2340" stroke-width="3"/><path d="M636 140 L676 154 L636 168Z" fill="#1FA86B" stroke="#1B2340" stroke-width="2"/>
+  <g id="cart" style="transition:transform ${on?'.9s cubic-bezier(.3,1.2,.5,1)':'.5s'};transform:translateX(${cx}px)"><rect x="0" y="172" width="120" height="54" rx="10" fill="#7B5CFF" stroke="#1B2340" stroke-width="3"/><circle cx="26" cy="230" r="10" fill="#1B2340"/><circle cx="94" cy="230" r="10" fill="#1B2340"/>
+  <rect x="-40" y="182" width="20" height="34" fill="${col(L.face)}" stroke="#1B2340" stroke-width="2.5"/><rect x="-20" y="182" width="20" height="34" fill="${col(other)}" stroke="#1B2340" stroke-width="2.5"/><text x="-30" y="205" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">${L.face}</text><text x="-10" y="205" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">${other}</text><text x="60" y="204" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">자석 수레</text></g></svg>`;}
+ function cartX(){if(!on)return 400;const rp=dir>0?'N':'S';return rp===LV[lv].face?516:332;}
+ function render(){$('#ps').innerHTML=svg();const tx=cartX();if(tx!==cx){const cart=$('#cart');cx=tx;requestAnimationFrame(()=>requestAnimationFrame(()=>{cart.style.transform=`translateX(${tx}px)`;}));}const L=LV[lv];$('#goal').innerHTML=`<div class="lbl">단계 ${lv+1} / 3</div><div class="q" style="font-size:19px">${L.goal==='push'?'🏁 수레를 밀어서 깃발까지 보내라!':'🤝 수레를 끌어당겨 전자석에 붙여라!'}</div><div class="hint">수레의 전자석 쪽 면은 <b style="color:${L.face==='N'?'#F0533D':'#2F6BFF'}">${L.face}극</b>이에요.</div>${done?`<button class="btn g switch" id="nx">${lv<2?'다음 단계 →':'미션 완료 →'}</button>`:''}`;
+  const sw=$('#sw');sw.textContent=on?'⏻ 스위치 끄기':'⚡ 스위치 켜기';sw.classList.toggle('on',on);
+  const nx=$('#nx');if(nx)nx.onclick=()=>{if(lv<2){lv++;dir=LV[lv].dir;on=false;tries=0;hint=false;done=false;sfx.click();say(lv===1?'이번엔 수레를 돌려놨어. 수레 쪽 면이 S극이야! 어떻게 하면 밀어낼까?':'마지막 단계! 이번엔 밀어내는 게 아니라 끌어당겨야 해.','happy');render();}else{badge('pole');finish('m7',30);}};}
+ $('#sw').onclick=()=>{if(busy)return;setErr('');if(on){on=false;sfx.off();render();return;}
+  on=true;busy=true;sfx.on();render();const L=LV[lv];const rp=dir>0?'N':'S';const repel=rp===L.face;
+  tm=setTimeout(()=>{busy=false;const ok=(L.goal==='push')===repel;
+   if(ok){done=true;sfx.snap();addCoins(tries===0&&!hint?15:5,tries===0&&!hint?'한 번에 성공':'퍼즐 성공');say(`성공! 전자석 오른쪽 끝이 ${rp}극이 됐어. 수레의 ${L.face}극과 ${repel?'같은 극이라 밀어냈어':'다른 극이라 끌어당겼어'}!`,'wow');}
+   else{tries++;sfx.fail();say(`앗, 수레가 ${repel?'밀려났어':'끌려왔어'}! 전자석 끝이 ${rp}극이었나 봐. 스위치를 끄고 전지 방향을 바꿔 볼까?`,'worry');}
+   render();},950);};
+ $('#flip').onclick=()=>{if(busy)return;if(done){setErr('이미 성공했어요! 다음 단계로 가 보세요');return;}setErr('');on=false;dir=-dir;sfx.click();render();};
+ $('#hb').onclick=()=>{sfx.click();hint=true;render();say('나침반을 전자석 끝에 대 봤어. 빨간 바늘(N)이 바깥쪽을 가리키면 전자석 끝은 N극, 전자석 쪽을 가리키면 S극이야!','happy');};
+ cleanup=()=>clearTimeout(tm);
+ dir=LV[0].dir;say('자석 수레가 있어! 전자석을 켜면 수레를 밀어낼 수도, 끌어당길 수도 있어. 전지 방향을 잘 정해서 켜 봐. 한 번에 성공하면 15코인!','happy');render();
+}
+
+/* ---------- 미션 8: 재활용 선별장 게임 ---------- */
+const ITEMS={steel:{name:'철 캔',iron:true,h:38,svg:'<rect x="-14" y="-38" width="28" height="38" rx="4" fill="#9AA3B5" stroke="#1B2340" stroke-width="2"/><rect x="-14" y="-29" width="28" height="6" fill="#6B7591"/><rect x="-14" y="-15" width="28" height="6" fill="#6B7591"/>'},
+ nail:{name:'철 못',iron:true,h:16,svg:'<rect x="-22" y="-11" width="44" height="7" rx="2" fill="#6B7591" stroke="#1B2340" stroke-width="1.6"/><rect x="-26" y="-16" width="7" height="16" rx="2" fill="#6B7591" stroke="#1B2340" stroke-width="1.6"/><path d="M22 -11 L30 -7.5 L22 -4Z" fill="#6B7591" stroke="#1B2340" stroke-width="1.4"/>'},
+ alu:{name:'알루미늄 캔',eun:'알루미늄 캔은',iron:false,h:36,svg:'<rect x="-12" y="-36" width="24" height="36" rx="4" fill="#E6EBF3" stroke="#1B2340" stroke-width="2"/><rect x="-12" y="-25" width="24" height="10" fill="#2F6BFF"/>'},
+ pet:{name:'페트병',eun:'페트병은',iron:false,h:44,svg:'<path d="M-5 -44 h10 v7 q10 6 10 14 v23 h-30 v-23 q0 -8 10 -14z" fill="#BDEBF7" stroke="#1B2340" stroke-width="2"/><rect x="-6" y="-47" width="12" height="5" fill="#1FA86B" stroke="#1B2340" stroke-width="1.5"/>'},
+ paper:{name:'종이 상자',eun:'종이 상자는',iron:false,h:28,svg:'<rect x="-20" y="-28" width="40" height="28" fill="#D9A066" stroke="#1B2340" stroke-width="2"/><path d="M-20 -20 H20" stroke="#B07A3E" stroke-width="2"/>'}};
+function m8(){
+ let G=null,raf=0;
+ app.innerHTML=`<div class="mhead"><span class="mtag">미션 8 · 미니게임</span><h1>재활용 선별장: 철만 골라내라!</h1></div><div id="say"></div>
+ <div class="gamebar"><span>⏱️ <b id="gt">45</b>초</span><span>🔋</span><div class="ebar"><i id="ef" style="width:100%"></i></div><span>🧲 철 <b id="gs">0</b></span><span>😵 놓친 철 <b id="gm">0</b></span></div>
+ <div class="stage" id="gstage"><svg viewBox="0 0 680 360" id="gsvg" role="img" aria-label="재활용 선별장 게임 화면"><rect width="680" height="360" fill="#EAF2FF"/><rect y="330" width="680" height="30" fill="#D9C9A8"/>
+ <rect x="90" y="26" width="580" height="12" rx="4" fill="#FFC83D" stroke="#1B2340" stroke-width="2.5"/>
+ <rect x="0" y="252" width="535" height="22" rx="6" fill="#3A4260" stroke="#1B2340" stroke-width="2.5"/>${[20,80,140,200,260,320,380,440,500].map(x=>`<circle cx="${x}" cy="263" r="6" fill="#8A93A8"/>`).join('')}<rect x="20" y="274" width="12" height="56" fill="#3A4260"/><rect x="500" y="274" width="12" height="56" fill="#3A4260"/>
+ <rect x="560" y="220" width="104" height="110" rx="8" fill="#1FA86B" stroke="#1B2340" stroke-width="3"/><text x="612" y="290" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">철</text><text x="612" y="310" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">수거함</text>
+ <g id="items"></g>
+ <g id="crane"><rect x="-26" y="22" width="52" height="20" rx="5" fill="#1B2340"/><line x1="0" y1="42" x2="0" y2="120" stroke="#1B2340" stroke-width="3"/><ellipse id="glow" cx="0" cy="150" rx="46" ry="13" fill="#FFC83D" opacity="0"/><rect x="-36" y="120" width="72" height="24" rx="6" fill="#1B2340"/><rect x="-30" y="125" width="60" height="5" rx="2" fill="#5A6280"/></g>
+ <g id="fx"></g></svg>
+ <div class="overlay" id="gover"><div class="in"></div></div></div>
+ <button class="btn y switch" id="mag">🧲 전자석 켜기</button>
+ <div class="legend"><span>🟢 철이라서 붙어요: 철 캔(회색), 철 못</span><span>⚪ 안 붙어요: 알루미늄 캔(파란 띠), 페트병, 종이 상자</span><span>⌨️ 스페이스바로도 켜고 끌 수 있어요</span></div>`;
+ const ov=$('#gover'),ovin=$('.in',ov);
+ function intro(){ov.hidden=false;ovin.innerHTML=`${chuli('happy',80)}<h2>철이의 선별장 지키기</h2><p class="hint" style="font-size:16px">컨베이어 벨트 위로 쓰레기가 지나가요. 철이 자석 아래에 올 때 <b>전자석을 켜면</b> 철이 붙어요. 크레인이 수거함 위로 가면 <b>전자석을 꺼서</b> 떨어뜨리세요!<br>켜 둔 동안에는 배터리가 닳아요.</p><button class="btn y switch" id="gstart">게임 시작!</button>`;$('#gstart').onclick=start;}
+ function start(){ac();sfx.click();$('#items').innerHTML='';$('#fx').innerHTML='';G={t:45,energy:100,on:false,items:[],spawn:.4,sorted:0,missed:0,crane:{x:200,state:'belt',item:null},last:performance.now(),over:false};ov.hidden=true;setMag(false);raf=requestAnimationFrame(loop);}
+ function spawn(){const keys=Object.keys(ITEMS);const iron=Math.random()<.5;const pool=keys.filter(k=>ITEMS[k].iron===iron);const k=pool[Math.floor(Math.random()*pool.length)];const T=ITEMS[k];const el=document.createElementNS(NS,'g');el.innerHTML=T.svg;$('#items').appendChild(el);G.items.push({k,name:T.eun||T.name,iron:T.iron,h:T.h,x:-30,y:252,el,state:'belt'});}
+ function fx(t,x,y,col){const e=document.createElementNS(NS,'text');e.setAttribute('x',x);e.setAttribute('y',y);e.setAttribute('text-anchor','middle');e.setAttribute('font-size','17');e.setAttribute('font-weight','900');e.setAttribute('fill',col);e.setAttribute('class','fxup');e.textContent=t;$('#fx').appendChild(e);setTimeout(()=>e.remove(),950);}
+ function setMag(v){if(!G)return;const c=G.crane;if(v===G.on)return;G.on=v;const b=$('#mag');b.textContent=v?'⏻ 전자석 끄기':'🧲 전자석 켜기';b.classList.toggle('on',v);
+  if(v)sfx.on();else{sfx.off();if(c.item){const it=c.item;c.item=null;it.state='fall';it.vy=0;if(c.x>=572){it.ty=322;G.sorted++;fx('+1 철!',612,200,'#0E6B42');setTimeout(sfx.coin,250);}else{it.ty=it.x<535?252:330;it.lost=true;fx('떨어뜨렸어!',c.x,200,'#F0533D');if(it.ty===252)it.state='belt',it.y=252;}}if(c.state==='bin'||c.state==='toBin')c.state='toBelt';}}
+ function step(dt){G.t-=dt;if(G.t<=0){G.t=0;return end('시간 끝!');}
+  if(G.on){G.energy-=8*dt;if(G.energy<=0){G.energy=0;setMag(false);return end('배터리 방전!');}}
+  const sp=85+(45-G.t)*1.4;G.spawn-=dt;if(G.spawn<=0){spawn();G.spawn=1.05+Math.random()*.75;}
+  const c=G.crane;
+  for(const it of G.items){
+   if(it.state==='belt'){it.x+=sp*dt;
+    if(it.x>548){it.state='gone';it.el.remove();if(it.iron){G.missed++;fx('놓쳤다!',520,226,'#F0533D');}}
+    else if(G.on&&c.state==='belt'&&!c.item&&Math.abs(it.x-200)<30){if(it.iron){it.state='held';c.item=it;c.state='toBin';sfx.snap();}else if(!it.warned){it.warned=true;fx(it.name+' 안 붙어!',200,206,'#5A6280');}}}
+   else if(it.state==='fall'){it.vy+=1100*dt;it.y+=it.vy*dt;if(it.y>=it.ty){it.y=it.ty;it.state='gone';const el=it.el;setTimeout(()=>el.remove(),250);if(!it.lost)sfx.drop();}}}
+  G.items=G.items.filter(it=>it.state!=='gone');
+  if(c.state==='toBin'){c.x=Math.min(612,c.x+520*dt);if(c.x>=612)c.state='bin';}
+  else if(c.state==='toBelt'){c.x=Math.max(200,c.x-520*dt);if(c.x<=200)c.state='belt';}
+  if(c.item){c.item.x=c.x;c.item.y=144+c.item.h;}}
+ function draw(){if(!G)return;$('#crane').setAttribute('transform',`translate(${G.crane.x.toFixed(1)} 0)`);$('#glow').setAttribute('opacity',G.on?.85:0);for(const it of G.items)it.el.setAttribute('transform',`translate(${it.x.toFixed(1)} ${it.y.toFixed(1)})`);
+  $('#gt').textContent=Math.ceil(G.t);$('#gs').textContent=G.sorted;$('#gm').textContent=G.missed;const ef=$('#ef');ef.style.width=G.energy.toFixed(0)+'%';ef.style.background=G.energy<30?'#F0533D':G.energy<60?'#FFC83D':'#1FA86B';}
+ function loop(now){if(!G||G.over)return;const dt=Math.min(.05,(now-G.last)/1000);G.last=now;step(dt);draw();if(!G.over)raf=requestAnimationFrame(loop);}
+ function end(why){G.over=true;cancelAnimationFrame(raf);if(G.on){G.on=false;const b=$('#mag');b.textContent='🧲 전자석 켜기';b.classList.remove('on');}draw();
+  const sc=G.sorted;const best=sc>(S.bestSort||0);if(best){S.bestSort=sc;save();}if(sc>=6)badge('sorter');const pass=sc>=3;
+  ov.hidden=false;ovin.innerHTML=`${chuli(pass?'wow':'worry',80)}<h2>${why}</h2><p style="font-size:20px;font-weight:800">골라낸 철 ${sc}개 · 놓친 철 ${G.missed}개${best?' · 🏆 최고 기록!':''}</p><p class="hint" style="font-size:15px">${pass?'선별장이 깨끗해졌어! 전자석은 켜면 철을 붙이고, 끄면 놓아줘서 이런 일에 딱이야.':'철 3개 이상 골라내면 미션 완료! 철이 자석 바로 아래에 왔을 때 켜 보세요.'}</p><div class="btnrow" style="justify-content:center"><button class="btn" id="again">다시 하기</button>${pass?'<button class="btn g" id="gfin">미션 완료 →</button>':''}</div>`;
+  $('#again').onclick=start;const f=$('#gfin');if(f)f.onclick=()=>finish('m8',30);}
+ $('#mag').onclick=()=>{if(!G||G.over)return;setMag(!G.on);};
+ const key=e=>{if(e.code==='Space'&&G&&!G.over){e.preventDefault();setMag(!G.on);}};document.addEventListener('keydown',key);
+ cleanup=()=>{cancelAnimationFrame(raf);document.removeEventListener('keydown',key);if(G)G.over=true;};
+ say('선별장에 쓰레기가 밀려들고 있어! 전자석 크레인으로 철만 골라내 줘. 알루미늄 캔은 자석에 붙을까? 직접 확인해 봐!','wow');intro();
+}
+
+/* ---------- 미션 10: 나의 가설 카드 ---------- */
+const HYP=['전지를 2개로 늘리면 클립이 더 많이 붙을 것이다','에나멜선을 더 많이 감으면 클립이 더 많이 붙을 것이다','전지 방향을 바꾸면 나침반 바늘이 반대로 돌 것이다','볼트(철심)를 빼면 클립이 거의 붙지 않을 것이다','스위치를 끄면 붙어 있던 클립이 떨어질 것이다'];
+function m10(){
+ const picked=new Set(S.notes.hyp||[]);
+ app.innerHTML=`<div class="mhead"><span class="mtag">미션 10 · 진짜 실험실로 출발</span><h1>나의 가설 카드 만들기</h1></div><div id="say"></div>
+ <div class="grid2"><div><div class="card"><div class="lbl">🕰️ 미션 1에서 쓴 처음 내 생각</div><div class="quote">${esc(S.notes.first||'(기록 없음)')}</div><div class="lbl">💡 지금은 크레인의 비밀을 어떻게 설명할 수 있나요?</div><textarea id="now" rows="4" placeholder="크레인 끝에는 전자석이 있어서…">${esc(S.notes.now||'')}</textarea></div></div>
+ <div><div class="card"><div class="lbl">🔬 실제 실험에서 확인할 가설 고르기 (2개 이상)</div><div id="hl">${HYP.map((t,i)=>`<button class="hypo ${picked.has(i)?'sel':''}" data-i="${i}">${t}</button>`).join('')}</div><div class="lbl" style="margin-top:10px">✏️ 나만의 가설 (선택)</div><input type="text" id="own" maxlength="60" placeholder="~하면 ~할 것이다" value="${esc(S.notes.own||'')}"></div></div></div>
+ <div class="err" id="err"></div><button class="btn y switch" id="mk">🃏 가설 카드 만들기</button><div id="out" class="mt"></div>`;
+ $$('.hypo').forEach(b=>b.onclick=()=>{sfx.click();const i=+b.dataset.i;picked.has(i)?picked.delete(i):picked.add(i);b.classList.toggle('sel');setErr('');});
+ $('#now').addEventListener('input',()=>setErr(''));
+ $('#mk').onclick=async()=>{const now=$('#now').value.trim();if(now.length<10){setErr('지금 내 설명을 조금 더 자세히 써 주세요 (10글자 이상)');shake($('#now'));return;}if(picked.size<2){setErr('확인할 가설을 2개 이상 골라 주세요');shake($('#hl'));return;}
+  S.notes.now=now;S.notes.hyp=[...picked].sort();S.notes.own=$('#own').value.trim();save();sfx.click();
+  const url=await drawCard();$('#out').innerHTML=`<div class="card"><div class="lbl">🎉 가설 카드 완성!</div><img src="${url}" alt="나의 가설 카드" style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:12px;border:2px solid var(--ink)"><div class="btnrow" style="justify-content:center"><a class="btn y" id="dl" href="${url}" download="가설카드_${esc(S.name)}.png" style="text-decoration:none">⬇️ 이미지 저장하기</a><button class="btn g" id="fin10">미션 완료 →</button></div><p class="hint" style="text-align:center">저장이 안 되면 그림을 길게 눌러 저장하세요. 저장한 그림은 웨일클래스에 제출해요.</p></div>`;
+  $('#fin10').onclick=()=>{badge('hyp');finish('m10',40,'진짜 실험실에서 가설을 확인해 보자! 🔬');};
+  $('#out').scrollIntoView({behavior:'smooth'});confetti();sfx.badge();};
+ say('드디어 마지막 미션이야! 처음 생각과 지금 생각을 비교해 보고, 진짜 실험실에서 확인할 가설을 골라 줘. 앱 속 실험이 진짜로도 똑같을까?','happy');
+}
+function wrap(x,text,px,py,maxW,lh,maxLines){const chars=[...String(text)];let line='',lines=[];for(const ch of chars){if(ch==='\n'){lines.push(line);line='';continue;}const t=line+ch;if(x.measureText(t).width>maxW&&line){lines.push(line);line=ch.trim()?ch:'';}else line=t;}if(line)lines.push(line);if(lines.length>maxLines){lines=lines.slice(0,maxLines);lines[maxLines-1]=lines[maxLines-1].slice(0,-1)+'…';}lines.forEach((l,i)=>x.fillText(l,px,py+i*lh));return py+lines.length*lh;}
+function rr(x,X,Y,W,H,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+W,Y,X+W,Y+H,r);x.arcTo(X+W,Y+H,X,Y+H,r);x.arcTo(X,Y+H,X,Y,r);x.arcTo(X,Y,X+W,Y,r);x.closePath();}
+async function drawCard(){try{await document.fonts.ready;}catch(e){}
+ const W=1080,H=2000,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');const F='Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif';
+ x.fillStyle='#FFF8EC';x.fillRect(0,0,W,H);x.save();rr(x,36,36,W-72,H,40);x.clip();x.fillStyle='#FFC83D';x.fillRect(36,36,W-72,240);x.restore();
+ x.fillStyle='#1B2340';x.textBaseline='top';x.font=`800 34px ${F}`;x.fillText('⚡ 전자석 연구소 · 나의 가설 카드',80,76);x.font=`900 66px ${F}`;x.fillText(`${S.name} 연구원`,80,128);
+ const d=new Date();x.font=`700 28px ${F}`;x.fillText(`${rank()} · 🪙 ${S.coins}코인 · 🏅 배지 ${S.badges.length}개 · ${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`,80,214);
+ let y=316;const sec=(title,col)=>{x.fillStyle=col;rr(x,80,y,W-160,52,14);x.fill();x.fillStyle='#1B2340';x.font=`800 30px ${F}`;x.fillText(title,104,y+11);y+=72;};
+ const body=(t,lines)=>{x.fillStyle='#1B2340';x.font=`600 30px ${F}`;y=wrap(x,t,96,y,W-192,44,lines)+22;};
+ sec('🕰️ 처음 내 생각','#ECE6FF');body(S.notes.first||'-',3);
+ sec('💡 지금 내 설명','#D9F5E8');body(S.notes.now||'-',4);
+ sec('📐 내가 찾은 규칙','#E2EAFF');body('세기: '+(S.notes.ruleS||'-'),2);y-=8;body('극: '+(S.notes.ruleP||'-'),2);
+ sec('🔬 진짜 실험에서 확인할 가설','#FFE3DD');
+ const hs=(S.notes.hyp||[]).map(i=>HYP[i]);if(S.notes.own)hs.push(S.notes.own);
+ hs.slice(0,6).forEach(t=>{x.strokeStyle='#1B2340';x.lineWidth=4;rr(x,96,y+2,34,34,6);x.stroke();x.fillStyle='#1B2340';x.font=`700 29px ${F}`;y=wrap(x,t,148,y,W-250,42,2);x.font=`500 24px ${F}`;x.fillStyle='#5A6280';x.fillText('실험 결과: ________________________________',148,y+2);y+=54;});
+ const H2=Math.max(1200,y+150);const c2=document.createElement('canvas');c2.width=W;c2.height=H2;const z=c2.getContext('2d');z.drawImage(cv,0,0);
+ rr(z,36,36,W-72,H2-72,40);z.lineWidth=8;z.strokeStyle='#1B2340';z.stroke();z.textBaseline='top';z.font=`600 24px ${F}`;z.fillStyle='#5A6280';z.fillText(`획득 배지  ${S.badges.map(b=>BADGES[b].icon).join(' ')||'-'}`,80,H2-110);
+ return c2.toDataURL('image/png');}
+
+const SCREENS={start:startScreen,map:mapScreen,m1,m2,m3:()=>labScreen('m3'),m4:()=>labScreen('m4'),m5,m6,m7,m8,m9:()=>labScreen('m9'),m10};
+go(S.name?'map':'start');
+</script>
+</body>
+</html>
